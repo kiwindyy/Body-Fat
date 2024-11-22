@@ -1,52 +1,38 @@
 #### Preamble ####
-# Purpose: Simulates a dataset of Australian electoral divisions, including the 
-  #state and party that won each division.
-# Author: Rohan Alexander
-# Date: 26 September 2024
-# Contact: rohan.alexander@utoronto.ca
-# License: MIT
-# Pre-requisites: The `tidyverse` package must be installed
-# Any other information needed? Make sure you are in the `starter_folder` rproj
-
+# Purpose: Simulates the body fat data with columns: Pct.BF, Neck, Chest,
+  #Abdomen, Wrist, Weight
+# Author: Wendy Yuan
+# Date: 29 November 2024
+# Contact: w.yuan@mail.utoronto.ca 
 
 #### Workspace setup ####
 library(tidyverse)
-set.seed(853)
+set.seed(304)
 
+#### Simulate Data ####
 
-#### Simulate data ####
-# State names
-states <- c(
-  "New South Wales",
-  "Victoria",
-  "Queensland",
-  "South Australia",
-  "Western Australia",
-  "Tasmania",
-  "Northern Territory",
-  "Australian Capital Territory"
+# Number of rows to simulate
+n <- 150
+
+# Simulate data for each column
+simulated_data <- tibble(
+  Pct.BF = runif(n, min = 5, max = 40),
+  Neck = rnorm(n, mean = 35, sd = 5),
+  Chest = rnorm(n, mean = 100, sd = 10),
+  Abdomen = rnorm(n, mean = 90, sd = 10),
+  Wrist = rnorm(n, mean = 18, sd = 2),
+  Weight = rnorm(n, mean = 70, sd = 15)
 )
 
-# Political parties
-parties <- c("Labor", "Liberal", "Greens", "National", "Other")
-
-# Create a dataset by randomly assigning states and parties to divisions
-analysis_data <- tibble(
-  division = paste("Division", 1:151),  # Add "Division" to make it a character
-  state = sample(
-    states,
-    size = 151,
-    replace = TRUE,
-    prob = c(0.25, 0.25, 0.15, 0.1, 0.1, 0.1, 0.025, 0.025) # Rough state population distribution
-  ),
-  party = sample(
-    parties,
-    size = 151,
-    replace = TRUE,
-    prob = c(0.40, 0.40, 0.05, 0.1, 0.05) # Rough party distribution
+# Ensure no negative values
+simulated_data <- simulated_data %>%
+  mutate(
+    Neck = ifelse(Neck < 0, abs(Neck), Neck),
+    Chest = ifelse(Chest < 0, abs(Chest), Chest),
+    Abdomen = ifelse(Abdomen < 0, abs(Abdomen), Abdomen),
+    Wrist = ifelse(Wrist < 0, abs(Wrist), Wrist),
+    Weight = ifelse(Weight < 0, abs(Weight), Weight)
   )
-)
 
-
-#### Save data ####
-write_csv(analysis_data, "data/00-simulated_data/simulated_data.csv")
+# Save simulated data as CSV for easy viewing
+write_csv(simulated_data, "data/00-simulated_data/simulated_bodyfat.csv")
