@@ -19,7 +19,12 @@ bibliography: references.bib
 #| message: false
 
 library(tidyverse)
-library(palmerpenguins)
+library(arrow)
+library(MASS)
+library(GGally)
+library(gridExtra)
+
+data <- read_parquet(here::here("data/02-analysis_data/bodyfat.parquet"))
 ```
 
 
@@ -56,59 +61,48 @@ Some paragraphs about how we go from a phenomena in the world to an entry in the
 
 Add graphs, tables and text. Use sub-sub-headings for each outcome variable or update the subheading to be singular.
 
-
-
 Some of our data is of penguins (@fig-bills), from @palmerpenguins.
 
 ```{r}
-#| label: fig-bills
-#| fig-cap: Bills of penguins
-#| echo: false
-
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
-```
-
-Talk more about it.
-
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
-
-```{r}
-#| label: fig-planes
-#| fig-cap: Relationship between wing length and width
 #| echo: false
 #| warning: false
 #| message: false
 
-analysis_data <- read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
-
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
+# Histogram for Pct.BF
+hist(data$Pct.BF, 
+     main = "Histogram of Percent Body Fat",
+     xlab = "Percent Body Fat",
+     col = "lightblue",
+     border = "black",
+     breaks = 20)
 ```
 
-Talk way more about it. 
+Talk more about it.
 
 ## Predictor variables
+
+variables of interest: Age Height Abdomen Wrist 
+
+Reference appendix for how variables were picked using backward selection method
 
 Add graphs, tables and text.
 
 Use sub-sub-headings for each outcome variable and feel free to combine a few into one if they go together naturally.
 
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
 
+# Create a layout for multiple plots
+par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))  # 2 rows and 4 columns
 
-
-
-
-
+# Histogram for each variable
+hist(data$Age, main = "Histogram of Age", xlab = "Age", col = "#7dbeff", border = "black")
+hist(data$Height, main = "Histogram of Height", xlab = "Height (inches)", col = "#2aebaa", border = "black")
+hist(data$Abdomen, main = "Histogram of Abdomen", xlab = "Abdomen (cm)", col = "#eb49a4", border = "black")
+hist(data$Wrist, main = "Histogram of Wrist", xlab = "Wrist (cm)", col = "#bb86f7", border = "black")
+```
 
 # Model
 
@@ -118,26 +112,64 @@ Here we briefly describe the Bayesian analysis model used to investigate... Back
 
 ## Model set-up
 
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
+Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.
 
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
+$y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \beta_3 x_{3i} + \beta_4 x_{4i}$
 
 We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
 
-
 ### Model justification
+
+Linear reg assumptions
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+# Fit the linear regression model
+model <- lm(Pct.BF ~ Age + Height + Abdomen + Wrist, data = data)
+
+# 1. Linearity: Residuals vs Fitted Plot
+plot(model$fitted.values, residuals(model), 
+     main = "Residuals vs Fitted",
+     xlab = "Fitted Values",
+     ylab = "Residuals")
+abline(h = 0, col = "red")
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+# 2. Independence: Durbin-Watson Test (requires car package)
+# install.packages("car")  # Uncomment to install if not already installed
+library(car)
+durbinWatsonTest(model)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+# 3. Homoscedasticity: Scale-Location Plot
+plot(model, which = 3)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+# 4. Normality: Q-Q Plot of Residuals
+qqnorm(residuals(model))
+qqline(residuals(model), col = "red")
+```
 
 We expect a positive relationship between the size of the wings and time spent aloft. In particular...
 
 We can use maths by including latex between dollar signs, for instance $\theta$.
-
 
 # Results
 
@@ -145,34 +177,45 @@ Our results are summarized in @tbl-modelresults.
 
 ```{r}
 #| echo: false
-#| eval: true
 #| warning: false
 #| message: false
 
-library(rstanarm)
+p1 <- ggplot(data, aes(x = Age, y = Pct.BF)) +
+  geom_point(color = "#7dbeff", alpha = 0.5) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(title = "Pct.BF vs Age", x = "Age", y = "Pct.BF") +
+  theme_minimal()
 
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
+p2 <- ggplot(data, aes(x = Height, y = Pct.BF)) +
+  geom_point(color = "#2aebaa", alpha = 0.5) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(title = "Pct.BF vs Height", x = "Height (inches)", y = "Pct.BF") +
+  theme_minimal()
+
+p3 <- ggplot(data, aes(x = Abdomen, y = Pct.BF)) +
+  geom_point(color = "#eb49a4", alpha = 0.5) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(title = "Pct.BF vs Abdomen", x = "Abdomen (cm)", y = "Pct.BF") +
+  theme_minimal()
+
+p4 <- ggplot(data, aes(x = Wrist, y = Pct.BF)) +
+  geom_point(color = "#bb86f7", alpha = 0.5) +
+  geom_smooth(method = "lm", color = "red", se = FALSE) +
+  labs(title = "Pct.BF vs Wrist", x = "Wrist (cm)", y = "Pct.BF") +
+  theme_minimal()
+
+grid.arrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 ```
+
 
 ```{r}
 #| echo: false
-#| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
 #| warning: false
+#| message: false
 
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
+model <- lm(Pct.BF ~ Age + Height + Abdomen + Wrist, data = data)
+summary(model)
 ```
-
-
-
 
 # Discussion
 
@@ -196,64 +239,62 @@ Weaknesses and next steps should also be included.
 
 # Appendix {-}
 
-
-# Additional data details
-
-# Model details {#sec-model-details}
-
-## Posterior predictive check
-
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
-
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
-
-```{r}
-#| eval: true
-#| echo: false
-#| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
-
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
-
-posterior_vs_prior(first_model) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
-```
-
-## Diagnostics
-
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
-
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
-
 ```{r}
 #| echo: false
-#| eval: true
-#| message: false
 #| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
+#| message: false
 
-plot(first_model, "trace")
+data <- data[ , !(names(data) %in% c("Density"))]
 
-plot(first_model, "rhat")
+# Full model using all variables except Density
+full_model <- lm(Pct.BF ~ ., data = data)
+
+# Perform backward selection
+backward_model <- stepAIC(full_model, direction = "backward", trace = 0)
+
+# Extract the final 4-variable model
+final_variables <- names(coef(backward_model))[-1] # Exclude intercept
+while (length(final_variables) > 4) {
+  current_model <- lm(as.formula(paste("Pct.BF ~", paste(final_variables, collapse = "+"))), data = data)
+  current_aic <- AIC(current_model)
+  
+  # Drop one variable at a time and calculate AIC
+  aic_values <- sapply(final_variables, function(var) {
+    temp_model <- lm(as.formula(paste("Pct.BF ~", paste(setdiff(final_variables, var), collapse = "+"))), data = data)
+    return(AIC(temp_model))
+  })
+  
+  # Remove the variable leading to the lowest AIC improvement
+  final_variables <- setdiff(final_variables, names(which.min(aic_values)))
+}
+
+# Final 4-variable model
+final_model <- lm(as.formula(paste("Pct.BF ~", paste(final_variables, collapse = "+"))), data = data)
+
+# Print the AIC value and final variables
+cat("AIC:", AIC(final_model), "\n")
+cat("Variables:", final_variables, "\n")
 ```
 
+Multicollinear between picked vars 
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
 
+# Select the specified variables
+selected_data <- data[, c("Age", "Height", "Abdomen", "Wrist")]
+
+# Generate a pairwise plot
+pairwise_plot <- ggpairs(selected_data, 
+                         lower = list(continuous = wrap("points", color = "#008080", alpha = 0.4)), 
+                         upper = list(continuous = wrap("points", color = "#008080", alpha = 0.4)),
+                         diag = list(continuous = wrap("densityDiag", fill = "#008080", alpha = 0.6)))
+
+# Print the plot
+print(pairwise_plot)
+```
 
 \newpage
 
-
 # References
-
-
