@@ -2,10 +2,9 @@
 title: "My title"
 subtitle: "My subtitle if needed"
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: [https://github.com/RohanAlexander/starter_folder](https://github.com/RohanAlexander/starter_folder)."
-date: today
+  - Wendy Yuan
+thanks: "Code and data are available at: https://github.com/kiwindyy/Body-Fat"
+date: November 29, 2024
 date-format: long
 abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
 format: pdf
@@ -54,7 +53,7 @@ We use the statistical programming language R [@citeR].... Our data [@shelter]..
 Overview text
 
 ## Measurement
-	
+
 Some paragraphs about how we go from a phenomena in the world to an entry in the dataset.
 
 ## Outcome variables
@@ -102,6 +101,25 @@ hist(data$Age, main = "Histogram of Age", xlab = "Age", col = "#7dbeff", border 
 hist(data$Height, main = "Histogram of Height", xlab = "Height (inches)", col = "#2aebaa", border = "black")
 hist(data$Abdomen, main = "Histogram of Abdomen", xlab = "Abdomen (cm)", col = "#eb49a4", border = "black")
 hist(data$Wrist, main = "Histogram of Wrist", xlab = "Wrist (cm)", col = "#bb86f7", border = "black")
+```
+
+Multicollinear between picked vars 
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+# Select the specified variables
+selected_data <- data[, c("Age", "Height", "Abdomen", "Wrist")]
+
+# Generate a pairwise plot
+pairwise_plot <- ggpairs(selected_data, 
+                         lower = list(continuous = wrap("points", color = "#008080", alpha = 0.4)), 
+                         upper = list(continuous = wrap("points", color = "#008080", alpha = 0.4)),
+                         diag = list(continuous = wrap("densityDiag", fill = "#008080", alpha = 0.6)))
+
+# Print the plot
+print(pairwise_plot)
 ```
 
 # Model
@@ -274,25 +292,6 @@ final_model <- lm(as.formula(paste("Pct.BF ~", paste(final_variables, collapse =
 # Print the AIC value and final variables
 cat("AIC:", AIC(final_model), "\n")
 cat("Variables:", final_variables, "\n")
-```
-
-Multicollinear between picked vars 
-```{r}
-#| echo: false
-#| warning: false
-#| message: false
-
-# Select the specified variables
-selected_data <- data[, c("Age", "Height", "Abdomen", "Wrist")]
-
-# Generate a pairwise plot
-pairwise_plot <- ggpairs(selected_data, 
-                         lower = list(continuous = wrap("points", color = "#008080", alpha = 0.4)), 
-                         upper = list(continuous = wrap("points", color = "#008080", alpha = 0.4)),
-                         diag = list(continuous = wrap("densityDiag", fill = "#008080", alpha = 0.6)))
-
-# Print the plot
-print(pairwise_plot)
 ```
 
 \newpage

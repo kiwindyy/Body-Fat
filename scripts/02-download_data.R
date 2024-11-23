@@ -5,12 +5,16 @@
 # Contact: w.yuan@mail.utoronto.ca 
 
 #### Workspace setup ####
-library(opendatatoronto)
 library(tidyverse)
+library(dplyr)
+library(readr)
+
+# Dataset page : https://dasl.datadescription.com/datafile/bodyfat/
+url <- "https://dasl.datadescription.com/download/data/3079"
+saved_file <- "data/01-raw_data/bodyfat.txt"
 
 #### Download data ####
-
-
+text_content <- readLines(url)
 
 #### Save data ####
-write_csv(the_raw_data, "inputs/data/raw_data.csv")
+writeLines(text_content, saved_file)
