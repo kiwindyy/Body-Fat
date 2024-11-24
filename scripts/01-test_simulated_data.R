@@ -25,11 +25,11 @@ if (nrow(sim_data) == 150) {
   stop("Test Failed: The dataset does not have 150 rows.")
 }
 
-# Test if the data has 6 columns (Pct.BF, Neck, Chest, Abdomen, Wrist, Weight)
-if (ncol(sim_data) == 6) {
-  message("Test Passed: The dataset has 6 columns.")
+# Test if the data has 16 columns
+if (ncol(sim_data) == 16) {
+  message("Test Passed: The dataset has 16 columns.")
 } else {
-  stop("Test Failed: The dataset does not have 6 columns.")
+  stop("Test Failed: The dataset does not have 16 columns.")
 }
 
 # Test if all columns contain numeric values
@@ -60,12 +60,19 @@ if (all(sim_data$Pct.BF >= 5 & sim_data$Pct.BF <= 40)) {
   stop("Test Failed: Some values in 'Pct.BF' are outside the range.")
 }
 
+# Test if all density values are between 0.9 and 1.1 (known minimum and maximum body density)
+if (all(sim_data$Density >= 0.9 & sim_data$Density <= 1.1)) {
+  message("Test Passed: All values in 'Density' are within the range (0.9, 1.1).")
+} else {
+  stop("Test Failed: Some values in 'Density' are outside the range.")
+}
+
 # Test if all values in body measurement columns are positive
-body_columns <- c("Neck", "Chest", "Abdomen", "Wrist", "Weight")
-if (all(sim_data %>% select(all_of(body_columns)) > 0)) {
+non_positive_cols <- names(sim_data)[sapply(sim_data, function(column) any(column <= 0))]
+if (length(non_positive_cols) ==0 ) {
   message("Test Passed: All body measurements are positive.")
 } else {
-  stop("Test Failed: Some body measurement values are not positive.")
+  stop(paste("Test Failed: Some values in '", paste(non_positive_cols, collapse = ", "), "' column(s) are not positive."))
 }
 
 # Test if all columns have variance (not constant)

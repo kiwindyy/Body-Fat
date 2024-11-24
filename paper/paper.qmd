@@ -22,27 +22,27 @@ library(arrow)
 library(MASS)
 library(GGally)
 library(gridExtra)
+library(knitr)
+library(car)
+library(kableExtra)
 
 data <- read_parquet(here::here("data/02-analysis_data/bodyfat.parquet"))
+raw_data <- read.table(here::here("data/01-raw_data/bodyfat.txt"))
 ```
-
 
 # Introduction
 
-Overview paragraph
+Why it matters paragraph
 
-Estimand paragraph
+Overview paragraph
 
 Results paragraph
 
-Why it matters paragraph
-
 Telegraphing paragraph: The remainder of this paper is structured as follows. @sec-data....
 
+## Estimand
 
-
-
-
+Estimand paragraph
 
 # Data {#sec-data}
 
@@ -55,6 +55,24 @@ Overview text
 ## Measurement
 
 Some paragraphs about how we go from a phenomena in the world to an entry in the dataset.
+
+cleaned data with normalized measurement 
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+# Split into two smaller tables
+part1 <- data[, 1:8]  # First 8 columns
+part2 <- data[, 9:16]  # Remaining 8 columns
+
+# Render each part
+kable(head(part1, 10), booktabs = TRUE, caption = "Part 1: Columns 1-8") %>%
+  kable_styling(latex_options = c("hold_position", "scale_down"))
+
+kable(head(part2, 10), booktabs = TRUE, caption = "Part 2: Columns 9-16") %>%
+  kable_styling(latex_options = c("hold_position", "scale_down"))
+```
 
 ## Outcome variables
 
@@ -71,7 +89,7 @@ Some of our data is of penguins (@fig-bills), from @palmerpenguins.
 hist(data$Pct.BF, 
      main = "Histogram of Percent Body Fat",
      xlab = "Percent Body Fat",
-     col = "lightblue",
+     col = "#f88379",
      border = "black",
      breaks = 20)
 ```
@@ -93,6 +111,43 @@ Use sub-sub-headings for each outcome variable and feel free to combine a few in
 #| warning: false
 #| message: false
 
+data <- data[ , !(names(data) %in% c("Density"))]
+
+# Full model using all variables except Density
+full_model <- lm(Pct.BF ~ ., data = data)
+
+# Perform backward selection
+backward_model <- stepAIC(full_model, direction = "backward", trace = 0)
+
+# Extract the final 4-variable model
+final_variables <- names(coef(backward_model))[-1] # Exclude intercept
+while (length(final_variables) > 4) {
+  current_model <- lm(as.formula(paste("Pct.BF ~", paste(final_variables, collapse = "+"))), data = data)
+  current_aic <- AIC(current_model)
+  
+  # Drop one variable at a time and calculate AIC
+  aic_values <- sapply(final_variables, function(var) {
+    temp_model <- lm(as.formula(paste("Pct.BF ~", paste(setdiff(final_variables, var), collapse = "+"))), data = data)
+    return(AIC(temp_model))
+  })
+  
+  # Remove the variable leading to the lowest AIC improvement
+  final_variables <- setdiff(final_variables, names(which.min(aic_values)))
+}
+
+# Final 4-variable model
+final_model <- lm(as.formula(paste("Pct.BF ~", paste(final_variables, collapse = "+"))), data = data)
+
+# Print the AIC value and final variables
+cat("AIC:", AIC(final_model), "\n")
+cat("Variables:", final_variables, "\n")
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
 # Create a layout for multiple plots
 par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))  # 2 rows and 4 columns
 
@@ -103,23 +158,18 @@ hist(data$Abdomen, main = "Histogram of Abdomen", xlab = "Abdomen (cm)", col = "
 hist(data$Wrist, main = "Histogram of Wrist", xlab = "Wrist (cm)", col = "#bb86f7", border = "black")
 ```
 
-Multicollinear between picked vars 
 ```{r}
 #| echo: false
 #| warning: false
 #| message: false
 
-# Select the specified variables
-selected_data <- data[, c("Age", "Height", "Abdomen", "Wrist")]
+model <- lm(Pct.BF ~ Age + Height + Abdomen + Wrist, data = data)
 
-# Generate a pairwise plot
-pairwise_plot <- ggpairs(selected_data, 
-                         lower = list(continuous = wrap("points", color = "#008080", alpha = 0.4)), 
-                         upper = list(continuous = wrap("points", color = "#008080", alpha = 0.4)),
-                         diag = list(continuous = wrap("densityDiag", fill = "#008080", alpha = 0.6)))
+# Calculate VIF
+vif_values <- vif(model)
 
-# Print the plot
-print(pairwise_plot)
+# Print VIF values
+print(vif_values)
 ```
 
 # Model
@@ -193,6 +243,25 @@ We can use maths by including latex between dollar signs, for instance $\theta$.
 
 Our results are summarized in @tbl-modelresults.
 
+Multicollinear between picked vars 
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+# Select the specified variables
+selected_data <- data[, c("Age", "Height", "Abdomen", "Wrist")]
+
+# Generate a pairwise plot
+pairwise_plot <- ggpairs(selected_data, 
+                         lower = list(continuous = wrap("points", color = "#008080", alpha = 0.4)), 
+                         upper = list(continuous = wrap("points", color = "#008080", alpha = 0.4)),
+                         diag = list(continuous = wrap("densityDiag", fill = "#008080", alpha = 0.6)))
+
+# Print the plot
+print(pairwise_plot)
+```
+
 ```{r}
 #| echo: false
 #| warning: false
@@ -235,6 +304,49 @@ model <- lm(Pct.BF ~ Age + Height + Abdomen + Wrist, data = data)
 summary(model)
 ```
 
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+# Fit the model
+model <- lm(Pct.BF ~ Age + Height + Abdomen + Wrist, data = data)
+
+# Extract coefficients, standard errors, and calculate 90% confidence intervals
+coef_summary <- summary(model)$coefficients
+conf_intervals <- confint(model, level = 0.90)  # 90% confidence intervals
+
+# Create a data frame for plotting
+coeff_data <- data.frame(
+  Parameter = rownames(coef_summary),
+  Estimate = coef_summary[, "Estimate"],
+  Lower = conf_intervals[, 1],
+  Upper = conf_intervals[, 2]
+)
+
+# Remove the intercept for better visualization (optional)
+coeff_data <- coeff_data[coeff_data$Parameter != "(Intercept)", ]
+
+# Create the plot
+ggplot(coeff_data, aes(x = Estimate, y = Parameter)) +
+  geom_point(size = 3, color = "#f88379") +
+  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.2,
+                 color = "#f88379", linewidth = 0.8) +
+  theme_minimal() +
+  labs(
+    title = "Model Coefficients",
+    subtitle = "90% Confidence Intervals",
+    x = "Coefficient Estimate",
+    y = "Predictors"
+  ) +
+  theme(
+    axis.title.y = element_text(size = 12, face = "bold"),
+    axis.text.y = element_text(size = 10),
+    plot.title = element_text(size = 14, face = "bold")
+  )
+
+```
+
 # Discussion
 
 ## First discussion point {#sec-first-point}
@@ -251,6 +363,8 @@ Please don't use these as sub-heading labels - change them to be what your point
 
 Weaknesses and next steps should also be included.
 
+# Conclusion
+
 \newpage
 
 \appendix
@@ -262,36 +376,16 @@ Weaknesses and next steps should also be included.
 #| warning: false
 #| message: false
 
-data <- data[ , !(names(data) %in% c("Density"))]
+# Split into two smaller tables
+part1 <- raw_data[, 1:8]  # First 8 columns
+part2 <- raw_data[, 9:16]  # Remaining 8 columns
 
-# Full model using all variables except Density
-full_model <- lm(Pct.BF ~ ., data = data)
+# Render each part
+kable(head(part1, 10), booktabs = TRUE, caption = "Part 1: Columns 1-8") %>%
+  kable_styling(latex_options = c("hold_position", "scale_down"))
 
-# Perform backward selection
-backward_model <- stepAIC(full_model, direction = "backward", trace = 0)
-
-# Extract the final 4-variable model
-final_variables <- names(coef(backward_model))[-1] # Exclude intercept
-while (length(final_variables) > 4) {
-  current_model <- lm(as.formula(paste("Pct.BF ~", paste(final_variables, collapse = "+"))), data = data)
-  current_aic <- AIC(current_model)
-  
-  # Drop one variable at a time and calculate AIC
-  aic_values <- sapply(final_variables, function(var) {
-    temp_model <- lm(as.formula(paste("Pct.BF ~", paste(setdiff(final_variables, var), collapse = "+"))), data = data)
-    return(AIC(temp_model))
-  })
-  
-  # Remove the variable leading to the lowest AIC improvement
-  final_variables <- setdiff(final_variables, names(which.min(aic_values)))
-}
-
-# Final 4-variable model
-final_model <- lm(as.formula(paste("Pct.BF ~", paste(final_variables, collapse = "+"))), data = data)
-
-# Print the AIC value and final variables
-cat("AIC:", AIC(final_model), "\n")
-cat("Variables:", final_variables, "\n")
+kable(head(part2, 10), booktabs = TRUE, caption = "Part 2: Columns 9-16") %>%
+  kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
 \newpage
