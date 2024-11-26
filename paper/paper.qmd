@@ -1,14 +1,15 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
+title: "Estimating Body Fat Using Circumference Measurements"
+subtitle: "Abdomen as the Strongest Predictor With Contributions From Wrist, Height, and Age For Affordable Health Monitoring"
 author: 
   - Wendy Yuan
 thanks: "Code and data are available at: https://github.com/kiwindyy/Body-Fat"
 date: November 29, 2024
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "This study uses a multi-linear regression model to estimate body fat percentage based on circumference measurements. Abdominal size was the strongest predictor, followed by wrist size, height, and age, which showed minimal contributions. These results demonstrate that accessible methods can effectively estimate body fat, offering methods suitable for non-clinical settings. This approach is important for identifying and managing health risks associated with extremely low or high body fat levels in a practical and affordable way."
 format: pdf
 number-sections: true
+toc: true
 bibliography: references.bib
 ---
 
@@ -30,34 +31,33 @@ data <- read_parquet(here::here("data/02-analysis_data/bodyfat.parquet"))
 raw_data <- read.table(here::here("data/01-raw_data/bodyfat.txt"))
 ```
 
+\newpage
+
 # Introduction
 
-Why it matters paragraph
+Monitoring body fat is important because of the major role it plays in overall health. Current methods, like DXA scans and underwater weighing, are very reliable but often expensive, difficult to access, or only available in specialized facilities. More affordable methods, like using a measuring tape for body size, can provide reasonable estimates of body fat and are easier for more people to use [@measurement]. A lack of easy and reliable ways to measure body fat can lead to missed chances to detect health risks. Excess body fat is strongly linked to conditions such as heart disease, type 2 diabetes, high blood pressure, and even certain cancers. It can also increase strain on the joints, leading to issues like osteoarthritis, and contribute to breathing problems like sleep apnea [@niddk]. Extremely low body fat can interfere with key body functions, affecting hormone levels, immune health, and even heart rhythm. For example, not enough body fat can lead to irregular heartbeats, extreme fatigue, and reproductive issues [@lowbodyfat]. Without proper tools to measure and manage body fat, individuals may unknowingly face these risks, making it important to research methods that are both reliable and affordable.
 
-Overview paragraph
+This study examines the reliability of using circumference measurements to estimate body fat. Starting with a dataset containing many measurements, we used backward selection to identify the most relevant variables impacting body fat. The four variables are: Age, Height, Abdomen, and Wrist circumference. After making sure these variables did not display collinearity, we tested the linear regression assumptions to confirm the model's validity. The selected variables were analyzed in a multiple linear regression model and individually in simple linear regression plots against body fat. This approach gives a clear understanding of how each variable relates to body fat. Finally, we evaluated the coefficients in the multiple regression model to make sure they aligned logically with the model, supporting its reliability.
 
-Results paragraph
+The study found that different body measurements had different effects on body fat percentage. Abdominal size had the strongest influence, with larger measurements strongly linked to higher body fat. Wrist size and height were associated with lower body fat, meaning that people with bigger wrists or greater height tend to have less fat overall. Age played a smaller role, with older individuals showing a slight tendency to have more body fat, but the effect was weaker than the other factors. Together, these measurements offered a practical way to estimate body fat, with abdominal size standing out as the most important factor.
 
-Telegraphing paragraph: The remainder of this paper is structured as follows. @sec-data....
+The remainder of this paper is structured as follows: @sec-data explains the dataset source, how it was collected, and describes the variables used. @sec-model outlines the multi-linear regression setup and the rationale for its use. @sec-results presents the regression outcomes, showing how the predictors explain body fat percentage. @sec-discussion interprets the findings, notes limitations, and suggests improvements. @sec-appendix explores survey, sampling, and observational data methods, including measurement techniques, simulations.
 
 ## Estimand
 
-Estimand paragraph
+The estimand of this study is body fat percentage, which we aim to estimate based on measurements from The Data And Story Library [@dasl]. Body fat percentage is an important health metric that cannot be measured directly for every individual, especially outside of specialized settings. To address this, we used a multi-linear regression model, combining predictors such as age, height, abdomen, and wrist circumference to estimate body fat. By analyzing these variables, this study seeks to understand their effects on body fat. The model not only provides a framework for estimation making sure our approach is both structured and practical.
 
 # Data {#sec-data}
 
-## Overview
-
-We use the statistical programming language R [@citeR].... Our data [@shelter].... Following @tellingstories, we consider...
-
-Overview text
-
 ## Measurement
 
-Some paragraphs about how we go from a phenomena in the world to an entry in the dataset.
+This study uses the statistical programming language R [@citeR] and the packages: tidyverse  [@tidyverse], Arrow [@arrow], MASS [@mass], GGally [@ggally], gridExtra [@gridextra], Knitr [@knitr], kableExtra [@kableextra], Car [@car]. The dataset used in this study, sourced from The Data And Story Library [@dasl], contains measurements on body fat percentage alongside various physical metrics for 250 male participants. The dataset was collected to analyze body fat as an important health measure, providing variables such as age, weight, height, and circumferences of specific body parts. These measurements were obtained through direct assessments to ensure accuracy and uniform input into the dataset. The dataset allows researchers to consider accessible ways to estimate body fat without relying on costly or specialized methods.
 
-cleaned data with normalized measurement 
+Before analysis, the raw dataset was cleaned to standardize and prepare the data for use. Since the original dataset included measurements in both inches and centimeters, all measurements were converted into centimeters to ensure uniformity, as detailed in [@tbl-cleaned1] & [@tbl-cleaned2]. Additional cleaning steps included removing duplicates, addressing outliers, and removing missing observations to improve dataset’s usability. This cleaned data makes sure that the variables in the study are accurate and consistent. For reference, the original dataset before cleaning is provided in [@tbl-raw1] & [@tbl-raw2], showing the changes made during this process.
+
 ```{r}
+#| label: tbl-cleaned1
+#| tbl-cap: Cleaned Data of Body Fat Variables Part 1
 #| echo: false
 #| warning: false
 #| message: false
@@ -67,20 +67,30 @@ part1 <- data[, 1:8]  # First 8 columns
 part2 <- data[, 9:16]  # Remaining 8 columns
 
 # Render each part
-kable(head(part1, 10), booktabs = TRUE, caption = "Part 1: Columns 1-8") %>%
+kable(head(part1, 10), booktabs = TRUE) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"))
+```
 
-kable(head(part2, 10), booktabs = TRUE, caption = "Part 2: Columns 9-16") %>%
+```{r}
+#| label: tbl-cleaned2
+#| tbl-cap: Cleaned Data of Body Fat Variables Part 2
+#| echo: false
+#| warning: false
+#| message: false
+
+kable(head(part2, 10), booktabs = TRUE) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
 ## Outcome variables
 
-Add graphs, tables and text. Use sub-sub-headings for each outcome variable or update the subheading to be singular.
+The dependent variable in this study is percent body fat, which represents the proportion of an individual's total body mass that is composed of fat. This variable is a continuous measure and serves as the target outcome we aim to estimate using predictor variables. Percent body fat is an important indicator of health, as both excessive and extremely low levels can lead to various medical issues. In our analysis, understanding the distribution of this variable is essential for ensuring that it aligns with the assumptions required for linear regression modeling.
 
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+As shown in [@fig-pctbf], the histogram of percent body fat has a shape that is close to bell-like, though it is not perfectly symmetrical. Most individuals in the dataset have body fat levels clustered within a common range, with fewer individuals having much higher or much lower levels. There is a slight tendency for more values to stretch toward higher body fat percentages, creating a small imbalance in the shape of the distribution. The spread of values covers a wide range, reflecting the diversity in body fat levels across the individuals studied. At the extremes, a few outliers stand out - some with very low body fat and others with notably high levels.
 
 ```{r}
+#| label: fig-pctbf
+#| fig-cap: Distribution of Percent Body Fat
 #| echo: false
 #| warning: false
 #| message: false
@@ -94,19 +104,33 @@ hist(data$Pct.BF,
      breaks = 20)
 ```
 
-Talk more about it.
+\newpage
 
 ## Predictor variables
 
-variables of interest: Age Height Abdomen Wrist 
+The original uncleaned dataset contained the variables below: 
 
-Reference appendix for how variables were picked using backward selection method
+- Density: The measure of body density, used as a key variable in estimating body fat percentage. It combines body weight and volume to provide insights into overall composition.
+- Age: The age of the individual in years, providing a measure of the person's stage of life, which can influence body composition.
+- Weight: The total body mass of the individual, reflecting the combined weight of bones, muscles, fat, and other tissues.
+- Height: The standing height of the individual, often used alongside weight to calculate proportions and indices like BMI.
+- Neck: The circumference of the neck, offering a measurement of fat and muscle distribution in the upper body.
+- Chest: The circumference of the chest, reflecting the size and structure of the upper torso, including muscle and fat.
+- Abdomen: The circumference around the abdomen, a key indicator of central fat distribution and a significant predictor of body fat percentage.
+- Waist: The measurement around the waist, often used with hip circumference to assess body shape and fat distribution.
+- Hip: The circumference of the hips, providing a measure of lower-body proportions and often paired with waist circumference to calculate ratios.
+- Thigh: The circumference of the thigh, measured to understand muscle and fat distribution in the upper leg.
+- Knee: The circumference of the knee, offering additional detail about lower-body structure and proportions.
+- Ankle: The measurement around the ankle, reflecting skeletal and soft tissue composition in the lower leg.
+- Bicep: The circumference of the bicep, measured with the arm flexed, highlighting upper-arm muscle and fat distribution.
+- Forearm: The circumference of the forearm, providing information about the composition of the lower arm.
+- Wrist: The circumference of the wrist, a useful proxy for skeletal size and overall body frame.
 
-Add graphs, tables and text.
-
-Use sub-sub-headings for each outcome variable and feel free to combine a few into one if they go together naturally.
+To focus on the most important variables, this study used backward selection to find the four that gave the best model fit, with the lowest Akaike Information Criterion (AIC). Backward selection works by starting with all the variables and gradually removing those that add the least to explaining body fat percentage, based on statistical rules. This process ensures the final set of variables is strongly related to the outcome. As shown in [@fig-aic], this approach narrowed the variables down to Age, Height, Abdomen, and Wrist circumference. These four were chosen because they worked together to provide the best explanation of the differences in body fat levels while keeping the model simple and effective.
 
 ```{r}
+#| label: fig-aic
+#| fig-cap: AIC Optimizing Best 4 Variables 
 #| echo: false
 #| warning: false
 #| message: false
@@ -139,112 +163,33 @@ while (length(final_variables) > 4) {
 final_model <- lm(as.formula(paste("Pct.BF ~", paste(final_variables, collapse = "+"))), data = data)
 
 # Print the AIC value and final variables
-cat("AIC:", AIC(final_model), "\n")
-cat("Variables:", final_variables, "\n")
+kable(final_variables)
 ```
+
+The histograms of Age, Height, Abdomen, and Wrist shown in [@fig-predictor] explain their role in predicting body fat. Most participants are between 30 and 60 years old, with fewer older individuals, making the sample mainly middle-aged. Height is evenly spread and follows a balanced shape, making it a reliable variable for the analysis. Abdomen size is mostly within a common range, with a few larger measurements that could influence the results due to their link to higher body fat. Wrist size has less variation but is consistent and still important because of its connection to lower body fat. Overall, these variables work well for modeling body fat, although the uneven spread of Age might need adjustments for better results.
 
 ```{r}
 #| echo: false
 #| warning: false
 #| message: false
+#| label: fig-predictor
+#| fig-cap: Distributions of Age, Height, Abdomen, Wrist
 
 # Create a layout for multiple plots
 par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))  # 2 rows and 4 columns
 
 # Histogram for each variable
 hist(data$Age, main = "Histogram of Age", xlab = "Age", col = "#7dbeff", border = "black")
-hist(data$Height, main = "Histogram of Height", xlab = "Height (inches)", col = "#2aebaa", border = "black")
+hist(data$Height, main = "Histogram of Height", xlab = "Height (cm)", col = "#2aebaa", border = "black")
 hist(data$Abdomen, main = "Histogram of Abdomen", xlab = "Abdomen (cm)", col = "#eb49a4", border = "black")
 hist(data$Wrist, main = "Histogram of Wrist", xlab = "Wrist (cm)", col = "#bb86f7", border = "black")
 ```
 
-```{r}
-#| echo: false
-#| warning: false
-#| message: false
-
-model <- lm(Pct.BF ~ Age + Height + Abdomen + Wrist, data = data)
-
-# Calculate VIF
-vif_values <- vif(model)
-
-# Print VIF values
-print(vif_values)
-```
-
-# Model
-
-The goal of our modelling strategy is twofold. Firstly,...
-
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
-
-## Model set-up
-
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.
-
-$y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \beta_3 x_{3i} + \beta_4 x_{4i}$
-
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
-
-### Model justification
-
-Linear reg assumptions
-```{r}
-#| echo: false
-#| warning: false
-#| message: false
-
-# Fit the linear regression model
-model <- lm(Pct.BF ~ Age + Height + Abdomen + Wrist, data = data)
-
-# 1. Linearity: Residuals vs Fitted Plot
-plot(model$fitted.values, residuals(model), 
-     main = "Residuals vs Fitted",
-     xlab = "Fitted Values",
-     ylab = "Residuals")
-abline(h = 0, col = "red")
-```
+The pairwise plot, [@fig-pairwise], shows how Age, Height, Abdomen, and Wrist are related to each other. Abdomen and Wrist have the strongest relationship. Larger abdominal circumferences are generally linked to larger wrists, showing overall body size. Age has a weak connection to Abdomen. Older individuals tend to have slightly larger abdominal sizes. However, Age shows no clear relationship with Height or Wrist. Height has small links to both Abdomen and Wrist. Taller individuals tend to have slightly smaller abdominal sizes and larger wrists. Abdomen and Wrist are the most important variables for predicting body fat. Height and Age provide smaller, additional contributions. The lack of strong correlations between these variables means they work well together in a regression model.
 
 ```{r}
-#| echo: false
-#| warning: false
-#| message: false
-
-# 2. Independence: Durbin-Watson Test (requires car package)
-# install.packages("car")  # Uncomment to install if not already installed
-library(car)
-durbinWatsonTest(model)
-```
-
-```{r}
-#| echo: false
-#| warning: false
-#| message: false
-
-# 3. Homoscedasticity: Scale-Location Plot
-plot(model, which = 3)
-```
-
-```{r}
-#| echo: false
-#| warning: false
-#| message: false
-
-# 4. Normality: Q-Q Plot of Residuals
-qqnorm(residuals(model))
-qqline(residuals(model), col = "red")
-```
-
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
-
-We can use maths by including latex between dollar signs, for instance $\theta$.
-
-# Results
-
-Our results are summarized in @tbl-modelresults.
-
-Multicollinear between picked vars 
-```{r}
+#| label: fig-pairwise
+#| fig-cap: Pairwise Plot Compairing the Relationship Between Age, Heigh, Abdomen, Wrist
 #| echo: false
 #| warning: false
 #| message: false
@@ -262,7 +207,113 @@ pairwise_plot <- ggpairs(selected_data,
 print(pairwise_plot)
 ```
 
+The variance inflation factor (VIF) is used to check if the predictors in a regression model are too closely related, a problem called multicollinearity. VIF shows how much a predictor’s contribution is influenced by its relationship with other variables. A VIF of 1 means no overlap, while values over 5 or 10 might cause issues and need fixing.
+
+[@fig-vif] shows the VIF values for Age, Height, Abdomen, and Wrist are all below 2 - meaning there is very little overlap between them. Wrist has the highest value (1.724), but this is still low, meaning it is only slightly related to other variables. The scatterplots showed some small relationships between variables, and the VIF confirms that these are not strong enough to cause problems. This means each variable adds its own useful information to the model.
+
 ```{r}
+#| label: fig-vif
+#| fig-cap: VIF Values of Age, Height, Abdomen, Wrist
+#| echo: false
+#| warning: false
+#| message: false
+
+model <- lm(Pct.BF ~ Age + Height + Abdomen + Wrist, data = data)
+
+# Calculate VIF
+vif_values <- vif(model)
+
+# Print VIF values
+kable(vif_values)
+```
+
+# Model {#sec-model}
+
+The goal of our model is to estimate body fat percentage using four predictors: Age, Height, Abdomen, and Wrist circumference. This helps us understand how each variable affects body fat while making sure the model gives accurate estimates.
+
+\newpage
+
+## Model set-up
+
+Define $y_i$ as the body fat percentage for the $i$-th individual. The predictors in the model are:
+
+- $x_{1i}$: Age, representing the individual’s age in years.
+- $x_{2i}$: Height, measured in centimeters.
+- $x_{3i}$: Abdomen, the abdominal circumference in centimeters.
+- $x_{4i}$: Wrist, the wrist circumference in centimeters.
+
+The model is expressed as:
+
+$y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \beta_3 x_{3i} + \beta_4 x_{4i}$
+
+where $\beta_0$ is the intercept, $\beta_1, \beta_2, \beta_3, \beta_4$ are the coefficients for each predictor, and $\epsilon_i$ represents the error term, assumed to be normally distributed with mean 0. Diagnostic plots and residual checks were performed to assess whether the model passed linear regression assumptions
+
+### Model justification
+
+Linear regression has four key assumptions to ensure the model works well. Linearity means the relationship between the predictors and the outcome should be straight, so the model captures the correct pattern. Constance variance means the residuals should have the same spread across all predictor variables. Normality requires the errors to follow a normal distribution. Independence ensures the errors are not related to each other, avoiding bias. Checking these assumptions helps make sure the model is accurate and trustworthy.
+
+The residual plot, shown in [@fig-residual], helps assess both the linearity and independence assumptions in the linear regression model. There is no strong curve or trend in the residuals, confirming that the linearity assumption holds well. The residuals are randomly scattered around the red horizontal line at zero, with no noticeable patterns or clustering, indicating that the model correctly captures the relationships between the predictors and the dependent variable. This randomness also suggests that the residuals are independent, as they are not systematically related to each other or to the fitted values. Together, these results confirm that the model satisfies both the linearity and independence assumptions, providing a solid basis for interpreting the results.
+
+```{r}
+#| label: fig-residual
+#| fig-cap: Residual Plot Verifying the Linearity Assumption
+#| echo: false
+#| warning: false
+#| message: false
+
+# Fit the linear regression model
+model <- lm(Pct.BF ~ Age + Height + Abdomen + Wrist, data = data)
+
+# 1. Linearity: Residuals vs Fitted Plot
+plot(model$fitted.values, residuals(model), 
+     main = "Residuals vs Fitted",
+     xlab = "Fitted Values",
+     ylab = "Residuals")
+abline(h = 0, col = "red")
+```
+
+The Scale-Location plot, [@fig-variance], is used to assess the assumption of constant variance in a linear regression model. The standardized residuals are plotted against the fitted values, with the red line representing the trend. For the assumption of constant variance to hold, the points should be scattered randomly around the red line without forming a pattern or a funnel shape. In this plot, the points seem to be spread out evenly across the predicted values, with no clear signs of the spread getting bigger or smaller. This means the errors have a consistent variance confirming the linear regression assumption.
+
+```{r}
+#| label: fig-variance
+#| fig-cap: Scale Location Verifying Constance Variance Assumption
+#| echo: false
+#| warning: false
+#| message: false
+
+plot(model, which = 3)
+```
+
+The Normal Q-Q plot, [@fig-normality] checks if the residuals (errors) in the model follow a normal distribution. If the errors are normal, the points should stay close to the red line. Here, most points are close to the line, meaning the errors are roughly normal. At the ends, some points are farther from the line, which might mean there are some extreme values or outliers. Overall, the errors seem mostly normal satisfying the linear regression assumption.
+
+```{r}
+#| label: fig-normality
+#| fig-cap: QQ-Plot Verifying the Normality of Errors Assumption
+#| echo: false
+#| warning: false
+#| message: false
+
+# 4. Normality: Q-Q Plot of Residuals
+qqnorm(residuals(model))
+qqline(residuals(model), col = "red")
+```
+
+We expect larger body measurements to be linked to higher body fat percentages. Specifically, people with bigger abdominal or wrist circumferences are likely to have more body fat. Abdomen size often shows how much fat is stored in the center of the body, which contributes a lot to total body fat. Wrist circumference, while less variable, can reflect overall body size and fat distribution. In contrast, we expect taller individuals to have less body fat because taller people usually have leaner body compositions.
+
+We also expect older individuals to have slightly more body fat. As people age, changes in metabolism and lifestyle can lead to gradual increases in fat. By using these variables in a multi-linear regression model, we can measure how each one affects body fat percentage. For example, the model will estimate how much body fat percentage increases when abdomen size grows by one unit, while keeping the other variables unchanged. This helps us understand the role of each measurement in predicting body fat.
+
+# Results {#sec-results}
+
+The scatterplots from [@fig-simple] provide an initial look at the relationships between body fat percentage and the variables: Age, Height, Abdomen, and Wrist circumference. It looks at whether trends exist between the dependent variable and the predictors, giving a sense of how each variable may contribute to the model.
+
+- Pct.BF vs Age: There is a slight positive trend, indicating that body fat percentage tends to increase as Age increases. While this relationship is not very strong, it suggests age could have a modest impact on body fat.
+- Pct.BF vs Height: The plot shows no clear trend, with a nearly flat line indicating that Height likely has little influence on body fat percentage.
+- Pct.BF vs Abdomen: A strong positive relationship is visible, as body fat percentage increases significantly with Abdomen circumference. This suggests Abdomen size is a key predictor of body fat due to its role in central fat storage.
+- Pct.BF vs Wrist: A weak negative trend is observed, suggesting that individuals with larger Wrist circumferences tend to have slightly lower body fat percentages.
+
+```{r}
+#| label: fig-simple
+#| fig-cap: Simple Linear Regression Plots Against Body Fat Percent for Age, Height, Abdomen, Wrist
 #| echo: false
 #| warning: false
 #| message: false
@@ -294,8 +345,15 @@ p4 <- ggplot(data, aes(x = Wrist, y = Pct.BF)) +
 grid.arrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 ```
 
+The regression results are summarized in [@tbl-multi]. The intercept, which represents the estimated body fat percentage when all predictors are zero, is 2.01. However, this value doesn't have much real-world meaning because variables like height and abdomen size cannot actually be zero. Among the predictors, Abdomen circumference has the strongest positive effect on body fat percentage. For every 1 cm increase in abdomen size, body fat percentage increases by about 0.78%, while keeping other factors unchanged.
+
+Wrist circumference shows a significant negative relationship with body fat percentage. This means that people with larger wrists tend to have lower body fat percentages. Height also has a small negative effect, indicating that taller individuals are likely to have slightly lower body fat. Age has a weak positive effect, meaning body fat percentage may slightly increase with age, but this result is less certain.
+
+The model explains about 70.3% of the variation in body fat percentage, showing it fits the data well. The residual standard error is 4.33, meaning the model's predictions are fairly accurate on average. Overall, Abdomen and Wrist are the most important predictors, with Height and Age playing smaller roles. Abdomen circumference stands out as the strongest factor for estimating body fat percentage.
 
 ```{r}
+#| label: tbl-multi
+#| tbl-cap: Multi-linear Regression Model
 #| echo: false
 #| warning: false
 #| message: false
@@ -304,7 +362,18 @@ model <- lm(Pct.BF ~ Age + Height + Abdomen + Wrist, data = data)
 summary(model)
 ```
 
+## Model Validation 
+
+The plot, [@fig-coefficients] verifies the reliability of the multi-linear regression model by showing the estimated effects of each predictor and their 90% confidence intervals. It confirms that the model’s results are consistent and aligns with key assumptions of linear regression.
+
+- Abdomen: The strong positive coefficient and confidence interval far from zero confirm that Abdomen is a significant predictor of body fat percentage. This shows the model correctly identifies meaningful relationships between predictors and the dependent variable.
+- Wrist: The negative coefficient and confidence interval that does not cross zero confirm that the model captures the relationship between Wrist size and lower body fat. While the interval for Wrist is slightly wider, it still supports the model’s reliability.
+- Height: The negative coefficient with a confidence interval just avoiding zero confirms the model captures a small but reliable relationship between Height and body fat percentage.
+- Age: The confidence interval for Age includes zero, confirming the model’s result that Age has a weaker and statistically insignificant effect on body fat percentage.
+
 ```{r}
+#| label: fig-coefficients
+#| fig-cap: Model Coefficients Confidence Intervals
 #| echo: false
 #| warning: false
 #| message: false
@@ -347,31 +416,55 @@ ggplot(coeff_data, aes(x = Estimate, y = Parameter)) +
 
 ```
 
-# Discussion
+# Discussion {#sec-discussion}
 
-## First discussion point {#sec-first-point}
+## Best Predictor: Abdomen
 
-If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
+The regression results confirm that abdomen circumference is the strongest predictor of body fat percentage, with a coefficient of 0.784 and a highly significant p-value (<2e-16). This means that for every 1 cm increase in abdomen size, body fat percentage increases by approximately 0.78%, holding all other variables constant. Abdomen size is directly related to fat accumulation around the central part of the body, which is often linked to overall body fat levels. This finding aligns with the understanding that abdominal fat is a strong indicator of general adiposity and health risks, such as heart disease and metabolic disorders. The importance of abdomen as a predictor highlights its role in practical applications of body fat estimation models, particularly for tracking health outcomes and identifying individuals at risk for fat-related conditions.
 
-## Second discussion point
+## Contributions of Wrist and Height
 
-Please don't use these as sub-heading labels - change them to be what your point actually is.
+The results also show meaningful contributions from wrist circumference and height, though their relationships with body fat differ. Wrist circumference has a significant negative coefficient (-1.942, p = 2.38e-05), indicating that individuals with larger wrists tend to have lower body fat percentages. This could reflect differences in body structure, where a larger wrist size often suggests a higher proportion of bone mass compared to fat mass. Height, on the other hand, has a smaller negative coefficient (-0.123, p = 0.0169), showing that taller individuals generally have slightly lower body fat percentages. This relationship may stem from taller individuals having a larger lean body mass proportion relative to their overall size. These results suggest that, while Abdomen plays the main role, Wrist and Height provide important context in understanding body fat distribution. They highlight the need to consider body structure, not just size, when evaluating fat levels.
 
-## Third discussion point
+## Model Fit and Predictive Strength
 
-## Weaknesses and next steps
+The model demonstrates strong predictive ability, with an R^2 value of 0.7033 and an adjusted R^2 of 0.698. This means that approximately 70% of the variation in body fat percentage is explained by the four predictors in the model: Age, Height, Abdomen, and Wrist. The residual standard error of 4.33 indicates that the model's predictions are reasonably close to the actual values, with only a small degree of error. While Abdomen is a primary predictor, and Wrist and Height also contribute, Age appears to be a weaker predictor. Its coefficient (0.046) has a p-value of 0.071, indicating it is not statistically significant at the 5% level. This suggests that while body fat percentage might slightly increase with age, the relationship is not strong enough to rely on for predictive purposes. Including Age adds only marginal value to the model, and its role is less important compared to the other predictors. These results validate the model’s usefulness in estimating body fat and emphasize its role in applications such as health monitoring, where accessible and reliable measurement tools are needed.
 
-Weaknesses and next steps should also be included.
+# Weaknesses and Next Steps 
 
-# Conclusion
+This paper creates a multi-linear regression model to estimate body fat percentage using four predictors: Age, Height, Abdomen, and Wrist circumference. The dataset includes male participants, and the study ensures the model follows linear regression assumptions. The results show how each predictor contributes to body fat percentage, with Abdomen being the most important factor.
+
+One finding is that abdominal size is a strong predictor of body fat percentage. This supports the idea that fat stored in the abdominal area plays a main role in overall body fat levels. Abdomen circumference serves as a useful and accessible measure for monitoring body fat, making it helpful for health-related purposes.
+
+We also learn that structural factors like wrist size are connected to body fat percentage. Larger wrists are linked to lower body fat, possibly because of a higher proportion of bone mass compared to fat mass. This finding shows the need to consider body structure, not just size, when assessing body fat.
+
+### Weaknesses 
+
+One issue with this study is that the data only includes men, making it difficult to apply the findings to other groups, such as women or people from different backgrounds. Body fat distribution and its predictors vary by gender and other factors, which limits how useful the model is for the general population. The dataset also focuses mostly on people aged 30 to 60, with very few younger or older individuals. As a result, the model may not work well for teenagers, young adults, or seniors, who might have different patterns of body fat.
+
+Another limitation is the number of predictors used. The model includes Age, Height, Abdomen, and Wrist but leaves out others like weight, hip size, and thigh size, which could improve predictions. These variables were excluded during backward selection to simplify the model, but some of them might still be important. Excluding these predictors could make the model less accurate in explaining body fat differences across individuals.
+
+The residual analysis also showed minor issues. While the model works well overall, there are some outliers and slight deviations from normality in the residuals. These could affect how well the model predicts body fat for people with very high or very low values. Additionally, the residual patterns suggest there might be other predictors not included in the model that could explain some of the remaining variability.
+
+### Future Steps
+
+Future research should focus on expanding the dataset to include more diverse groups. Adding data for women and people from different backgrounds would make the model more useful for a wider population. Including people of all ages, especially teenagers and seniors, would help the model predict body fat for everyone, not just middle-aged adults. A more balanced dataset would also make it easier to detect patterns that apply to specific groups.
+
+Researchers should also consider adding more predictors to the model. Including variables like weight, hip size, and thigh size could give a fuller picture of body fat distribution and improve the model’s accuracy. Looking at how important each variable is could help decide which ones to add while keeping the model manageable.
+
+Finally, using different methods to model the data could address some of the limitations. For example, machine learning techniques or non-linear models could find patterns that linear regression might miss, especially for outliers. Future studies could also use data collected over time to see how body fat changes as people age and whether the same predictors still apply. This would help create a better understanding of body fat and how it changes throughout life.
 
 \newpage
 
 \appendix
 
-# Appendix {-}
+# Appendix {#sec-appendix}
+
+## Appendix A
 
 ```{r}
+#| label: tbl-raw1
+#| tbl-cap: Raw Data of Body Fat Variables Part 1
 #| echo: false
 #| warning: false
 #| message: false
@@ -381,12 +474,22 @@ part1 <- raw_data[, 1:8]  # First 8 columns
 part2 <- raw_data[, 9:16]  # Remaining 8 columns
 
 # Render each part
-kable(head(part1, 10), booktabs = TRUE, caption = "Part 1: Columns 1-8") %>%
-  kable_styling(latex_options = c("hold_position", "scale_down"))
-
-kable(head(part2, 10), booktabs = TRUE, caption = "Part 2: Columns 9-16") %>%
+kable(head(part1, 10), booktabs = TRUE) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
+
+```{r}
+#| label: tbl-raw2
+#| tbl-cap: Raw Data of Body Fat Variables Part 2
+#| echo: false
+#| warning: false
+#| message: false
+
+kable(head(part2, 10), booktabs = TRUE) %>%
+  kable_styling(latex_options = c("hold_position", "scale_down"))
+```
+
+## Appendix B
 
 \newpage
 
