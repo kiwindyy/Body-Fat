@@ -49,11 +49,15 @@ The estimand of this study is body fat percentage, which we aim to estimate base
 
 # Data {#sec-data}
 
+This study uses the statistical programming language R [@citeR] and the packages: tidyverse  [@tidyverse], Arrow [@arrow], MASS [@mass], GGally [@ggally], gridExtra [@gridextra], Knitr [@knitr], kableExtra [@kableextra], Car [@car], TestThat [@testthat], dplyr [@dplyr], readr [@readr], tidyr [@tidyr]. 
+
 ## Measurement
 
-This study uses the statistical programming language R [@citeR] and the packages: tidyverse  [@tidyverse], Arrow [@arrow], MASS [@mass], GGally [@ggally], gridExtra [@gridextra], Knitr [@knitr], kableExtra [@kableextra], Car [@car]. The dataset used in this study, sourced from The Data And Story Library [@dasl], contains measurements on body fat percentage alongside various physical metrics for 250 male participants. The dataset was collected to analyze body fat as an important health measure, providing variables such as age, weight, height, and circumferences of specific body parts. These measurements were obtained through direct assessments to ensure accuracy and uniform input into the dataset. The dataset allows researchers to consider accessible ways to estimate body fat without relying on costly or specialized methods.
+The dataset used in this study, sourced from The Data And Story Library [@dasl], contains measurements on body fat percentage alongside various physical metrics for 250 male participants. The dataset was collected to analyze body fat as an important health measure, providing variables such as age, weight, height, and circumferences of specific body parts. These measurements were obtained through direct assessments to ensure accuracy and uniform input into the dataset. The dataset allows researchers to consider accessible ways to estimate body fat without relying on costly or specialized methods.
 
 Before analysis, the raw dataset was cleaned to standardize and prepare the data for use. Since the original dataset included measurements in both inches and centimeters, all measurements were converted into centimeters to ensure uniformity, as detailed in [@tbl-cleaned1] & [@tbl-cleaned2]. Additional cleaning steps included removing duplicates, addressing outliers, and removing missing observations to improve dataset’s usability. This cleaned data makes sure that the variables in the study are accurate and consistent. For reference, the original dataset before cleaning is provided in [@tbl-raw1] & [@tbl-raw2], showing the changes made during this process.
+
+\newpage
 
 ```{r}
 #| label: tbl-cleaned1
@@ -103,8 +107,6 @@ hist(data$Pct.BF,
      border = "black",
      breaks = 20)
 ```
-
-\newpage
 
 ## Predictor variables
 
@@ -230,8 +232,6 @@ kable(vif_values)
 # Model {#sec-model}
 
 The goal of our model is to estimate body fat percentage using four predictors: Age, Height, Abdomen, and Wrist circumference. This helps us understand how each variable affects body fat while making sure the model gives accurate estimates.
-
-\newpage
 
 ## Model set-up
 
