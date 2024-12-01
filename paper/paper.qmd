@@ -41,7 +41,7 @@ This study examines the reliability of using circumference measurements to estim
 
 The study found that different body measurements had different effects on body fat percentage. Abdominal size had the strongest influence, with larger measurements strongly linked to higher body fat. Wrist size and height were associated with lower body fat, meaning that people with bigger wrists or greater height tend to have less fat overall. Age played a smaller role, with older individuals showing a slight tendency to have more body fat, but the effect was weaker than the other factors. Together, these measurements offered a practical way to estimate body fat, with abdominal size standing out as the most important factor.
 
-The remainder of this paper is structured as follows: @sec-data explains the dataset source, how it was collected, and describes the variables used. @sec-model outlines the multi-linear regression setup and the rationale for its use. @sec-results presents the regression outcomes, showing how the predictors explain body fat percentage. @sec-discussion interprets the findings, notes limitations, and suggests improvements. @sec-appendix explores survey, sampling, and observational data methods, including measurement techniques, simulations.
+The remainder of this paper is structured as follows: @sec-data explains the dataset source, how it was collected, and describes the variables used. @sec-model outlines the multi-linear regression setup and the rationale for its use. @sec-results presents the regression outcomes, showing how the predictors explain body fat percentage. @sec-discussion interprets the findings, notes limitations, and suggests improvements. @sec-a is the raw dataset before any cleaning. @sec-b explores survey, sampling, and observational data methods, including measurement techniques, simulations.
 
 ## Estimand
 
@@ -55,7 +55,7 @@ This study uses the statistical programming language R [@citeR] and the packages
 
 The dataset used in this study, sourced from The Data And Story Library [@dasl], contains measurements on body fat percentage alongside various physical metrics for 250 male participants. The dataset was collected to analyze body fat as an important health measure, providing variables such as age, weight, height, and circumferences of specific body parts. These measurements were obtained through direct assessments to ensure accuracy and uniform input into the dataset. The dataset allows researchers to consider accessible ways to estimate body fat without relying on costly or specialized methods.
 
-Before analysis, the raw dataset was cleaned to standardize and prepare the data for use. Since the original dataset included measurements in both inches and centimeters, all measurements were converted into centimeters to ensure uniformity, as detailed in [@tbl-cleaned1] & [@tbl-cleaned2]. Additional cleaning steps included removing duplicates, addressing outliers, and removing missing observations to improve dataset’s usability. This cleaned data makes sure that the variables in the study are accurate and consistent. For reference, the original dataset before cleaning is provided in [@tbl-raw1] & [@tbl-raw2], showing the changes made during this process.
+Before analysis, the raw dataset was cleaned to standardize and prepare the data for use. Since the original dataset included measurements in both inches and centimeters, all measurements were converted into centimeters to ensure uniformity, as detailed in [@tbl-cleaned1] & [@tbl-cleaned2]. Additional cleaning steps included removing duplicates, addressing outliers, and removing missing observations to improve dataset’s usability. This cleaned data makes sure that the variables in the study are accurate and consistent. For reference, the original dataset before cleaning is provided in [@tbl-raw1] & [@tbl-raw2] in @sec-a, showing the changes made during this process.
 
 \newpage
 
@@ -345,21 +345,51 @@ p4 <- ggplot(data, aes(x = Wrist, y = Pct.BF)) +
 grid.arrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 ```
 
-The regression results are summarized in [@tbl-multi]. The intercept, which represents the estimated body fat percentage when all predictors are zero, is 2.01. However, this value doesn't have much real-world meaning because variables like height and abdomen size cannot actually be zero. Among the predictors, Abdomen circumference has the strongest positive effect on body fat percentage. For every 1 cm increase in abdomen size, body fat percentage increases by about 0.78%, while keeping other factors unchanged.
+The regression results are summarized in [@tbl-multi1], showing the coefficients and pvalues & [@tbl-multi2], showing the $R^2$ and standard error. The intercept, which represents the estimated body fat percentage when all predictors are zero, is 2.01. However, this value doesn't have much real-world meaning because variables like height and abdomen size cannot actually be zero. Among the predictors, Abdomen circumference has the strongest positive effect on body fat percentage. For every 1 cm increase in abdomen size, body fat percentage increases by about 0.78%, while keeping other factors unchanged.
 
 Wrist circumference shows a significant negative relationship with body fat percentage. This means that people with larger wrists tend to have lower body fat percentages. Height also has a small negative effect, indicating that taller individuals are likely to have slightly lower body fat. Age has a weak positive effect, meaning body fat percentage may slightly increase with age, but this result is less certain.
 
 The model explains about 70.3% of the variation in body fat percentage, showing it fits the data well. The residual standard error is 4.33, meaning the model's predictions are fairly accurate on average. Overall, Abdomen and Wrist are the most important predictors, with Height and Age playing smaller roles. Abdomen circumference stands out as the strongest factor for estimating body fat percentage.
 
 ```{r}
-#| label: tbl-multi
-#| tbl-cap: Multi-linear Regression Model
+#| label: tbl-multi1
+#| tbl-cap: Multi-linear Regression Model Coefficients & P-Values
 #| echo: false
 #| warning: false
 #| message: false
 
 model <- lm(Pct.BF ~ Age + Height + Abdomen + Wrist, data = data)
-summary(model)
+model_summary <- summary(model)
+
+# Extract coefficients and p-values
+coefficients_table <- data.frame(
+  Variable = rownames(model_summary$coefficients),
+  Estimate = model_summary$coefficients[, "Estimate"],
+  `P-Value` = model_summary$coefficients[, "Pr(>|t|)"],
+  row.names = NULL
+)
+
+kable(coefficients_table)
+```
+
+```{r}
+#| label: tbl-multi2
+#| tbl-cap: Multi-linear Regression Model R-squared & RSE 
+#| echo: false
+#| warning: false
+#| message: false
+
+# Add residual standard error, R-squared, and adjusted R-squared
+model_stats <- data.frame(
+  Metric = c("Residual Standard Error", "Multiple R-squared", "Adjusted R-squared"),
+  Value = c(
+    model_summary$sigma,
+    model_summary$r.squared,
+    model_summary$adj.r.squared
+  )
+)
+
+kable(model_stats)
 ```
 
 ## Model Validation 
@@ -428,7 +458,7 @@ The results also show meaningful contributions from wrist circumference and heig
 
 ## Model Fit and Predictive Strength
 
-The model demonstrates strong predictive ability, with an R^2 value of 0.7033 and an adjusted R^2 of 0.698. This means that approximately 70% of the variation in body fat percentage is explained by the four predictors in the model: Age, Height, Abdomen, and Wrist. The residual standard error of 4.33 indicates that the model's predictions are reasonably close to the actual values, with only a small degree of error. While Abdomen is a primary predictor, and Wrist and Height also contribute, Age appears to be a weaker predictor. Its coefficient (0.046) has a p-value of 0.071, indicating it is not statistically significant at the 5% level. This suggests that while body fat percentage might slightly increase with age, the relationship is not strong enough to rely on for predictive purposes. Including Age adds only marginal value to the model, and its role is less important compared to the other predictors. These results validate the model’s usefulness in estimating body fat and emphasize its role in applications such as health monitoring, where accessible and reliable measurement tools are needed.
+The model demonstrates strong predictive ability, with an $R^2$ value of 0.7033 and an adjusted $R^2$ of 0.698. This means that approximately 70% of the variation in body fat percentage is explained by the four predictors in the model: Age, Height, Abdomen, and Wrist. The residual standard error of 4.33 indicates that the model's predictions are reasonably close to the actual values, with only a small degree of error. While Abdomen is a primary predictor, and Wrist and Height also contribute, Age appears to be a weaker predictor. Its coefficient (0.046) has a p-value of 0.071, indicating it is not statistically significant at the 5% level. This suggests that while body fat percentage might slightly increase with age, the relationship is not strong enough to rely on for predictive purposes. Including Age adds only marginal value to the model, and its role is less important compared to the other predictors. These results validate the model’s usefulness in estimating body fat and emphasize its role in applications such as health monitoring, where accessible and reliable measurement tools are needed.
 
 # Weaknesses and Next Steps 
 
@@ -458,9 +488,9 @@ Finally, using different methods to model the data could address some of the lim
 
 \appendix
 
-# Appendix {#sec-appendix}
+# Raw Data of Body Fat Percentage {#sec-a}
 
-## Appendix A
+## First 8 Variables 
 
 ```{r}
 #| label: tbl-raw1
@@ -478,6 +508,8 @@ kable(head(part1, 10), booktabs = TRUE) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
+## Final 8 Variables
+
 ```{r}
 #| label: tbl-raw2
 #| tbl-cap: Raw Data of Body Fat Variables Part 2
@@ -489,7 +521,43 @@ kable(head(part2, 10), booktabs = TRUE) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
-## Appendix B
+# Surveys, sampling, and observational data {#sec-b}
+
+## Similar Methodologies From Literature 
+
+***Overview of Related Methods***
+
+The study by @potter, Circumference-Based Predictions of Body Fat Revisited, analyzed the use of abdominal circumference measurements to estimate body fat percentage. This method, used by the United States Marine Corps, was compared against dual-energy X-ray absorptiometry, a standard reference, and bioelectrical impedance analysis to evaluate its accuracy. The sample included 609 Marines, consisting of 430 men and 179 women, aged 18–57 years, and the study looked at differences in results by gender and age.
+
+***Strengths of the Study***
+
+The study found that abdominal circumference is a practical predictor of body fat percentage in men, particularly when their body fat percentage is within the range expected for military fitness standards (18–26%) [@potter]. The method’s simplicity and low cost make it suitable for widespread use in military settings where assessments need to be performed efficiently. By including men and women from different age groups, the study provided a broad view of how the method performs across a variety of individuals who meet Marine Corps fitness standards. The study also addressed the relationship between age and body fat. Older individuals tended to have slightly more fat mass but similar fat-free mass compared to younger participants. This suggests the method is generally consistent across age groups in terms of patterns of underestimation or overestimation.
+
+***Limitations of the Study***
+
+However, the study also highlighted significant limitations [@potter]. The method underestimated body fat percentage in men by an average of 2.6 percent, while it overestimated body fat in women by 2.3 percent for younger participants and 1.3 percent for older participants. These differences were due to variations in fat distribution. Women often store fat in areas not measured by abdominal circumference, such as the hips and thighs, leading to overestimations. For men, especially those with lower body fat, the method struggled to account for intra-abdominal fat, resulting in underestimations. The study also tested bioelectrical impedance analysis, which was more accurate overall but still affected by errors in individuals with extreme body fat percentages and by hydration variability. Both methods were found to lack the precision needed for detailed body composition assessments.
+
+***Comparison to This Paper***
+
+This paper builds on @potter work by addressing some of the identified shortcomings. For example, while @potter focused solely on abdominal circumference, this study incorporates additional variables, such as wrist size and height, into a statistical model. These extra measurements aim to make predictions more accurate, especially for individuals at the lower or higher ends of the body fat range.
+
+Additionally, @potter highlighted that body fat is distributed differently between genders. This study focuses only on middle-aged men. By concentrating on this group, the research aims to provide a method that better captures the specific fat distribution patterns and characteristics of this demographic.
+
+***Implications for Practical Applications***
+
+@potter findings show that while the abdominal circumference method is useful for broad categorization and operational use, it is less effective for individual assessments where greater precision is required. This study builds on that foundation by proposing a refined model that combines multiple variables to improve accuracy. This approach can be applied in both military and civilian settings where body fat estimation needs to be quick, low-cost, and reliable.
+
+## Simulated Survey 
+
+To collect data on body fat estimation using circumference measurements, a well-structured survey was designed to gather relevant information from adult participants. The survey starts with an introductory section explaining the purpose of the study, which is to create affordable and practical methods for estimating body fat. It assures participants that their data will be kept confidential and used only for research. The introduction also provides contact details for the lead researcher in case participants have questions.
+
+The survey is divided into three sections. The first section gathers basic demographic details, such as age, gender, and height, to set the context for analysis. These straightforward questions help respondents begin the survey with ease. The second section focuses on circumference measurements, including wrist and abdomen size, measured in centimeters. To ensure consistency, this section includes clear instructions and visual aids, such as diagrams, to guide participants. Responses are collected using dropdown fields for precise numerical entries. The final section includes optional open-ended questions about participants' general health habits, such as diet and physical activity, to provide additional context about their body composition. The survey ends with a thank-you note, acknowledging the participants’ time and effort.
+
+A stratified random sampling method was used to ensure the study represents adults from different age groups and body types, which is important for building a reliable predictive model. The target population included adults aged 20 to 70 years. Participants were grouped into age brackets (e.g., 20–30, 31–40) to ensure fair representation. The sampling frame was built using contacts from community health organizations, fitness centers, and social media recruitment. A pilot test with 30 participants helped identify unclear questions and improve measurement instructions.
+
+This methodology uses best practices in survey design by including a mix of question types (e.g., multiple-choice, numerical entries, and open-ended responses) and clear instructions to ensure accurate and consistent data collection. By aligning the survey with the study’s goals, the collected data will support the development of effective regression models for estimating body fat. The sampling strategy minimizes bias and enhances the ability to apply the findings broadly.
+
+Link to survey: https://forms.gle/353vGHrE5QcBRGuH7
 
 \newpage
 

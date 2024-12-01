@@ -1,20 +1,16 @@
 ---
-title: "Datasheet for 'A dataset'"
+title: "Datasheet for 'Body Fat Percentage Dataset'"
 subtitle: "My subtitle if needed"
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: LINK."
-date: "`r Sys.time()`"
-date-format: "D MMMM YYYY"
+  - Wendy Yuan
+thanks: "Code and data are available at: https://github.com/kiwindyy/Body-Fat"
+date: November 29, 2024
+date-format: long
 abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
 format: pdf
 number-sections: true
-bibliography: references.bib
+# bibliography: references.bib
 ---
-
-Extract of the questions from @gebru2021datasheets.
-
 
 **Motivation**
 

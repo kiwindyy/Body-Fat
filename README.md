@@ -9,18 +9,13 @@ This study estimates body fat percentage using a multi-linear regression model b
 The repo is structured as:
 -   `data/raw_data` contains the raw data as obtained from The Data And Story Library (DASL).
 -   `data/analysis_data` contains the cleaned dataset that was constructed.
--   `other` contains relevant details about LLM chat interactions and sketches.
--   `paper` contains the files used to generate the paper, including the Quarto document and reference bibliography file, as well as the PDF of the paper. 
+-   `other/llm_usage` contains relevant details about LLM chat interactions.
+-   `other/datasheet` contains the datasheet for Body Fat Percentage dataset.
+-   `other/model` contains relevant code about finding the appropriate variables for the study.
+-   `other/sketches` contains images of the initial sketches for the Body Fat Percentage dataset.
+-   `paper` contains the files used to generate the paper, including the Quarto document, reference bibliography file, and the PDF version. 
 -   `scripts` contains the R scripts used to simulate, download and clean data.
 
 ## Statement on LLM usage
 
-Aspects of the code and writing were written with the help of Chat-GPT 40. The entire chat history is available in other/llms/usage.txt.
-
-## Some checks
-
-- [ ] Sketches
-- [ ] Datasheet
-- [ ] 04 test analysis data
-- [ ] Appendix B
-- [ ] Remove this checklist
+Aspects of the code were written with the help of Chat-GPT 40. The entire chat history is available in other/llms/usage.txt.
