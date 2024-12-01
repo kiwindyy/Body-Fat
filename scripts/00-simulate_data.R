@@ -10,7 +10,9 @@ library(tidyverse)
 set.seed(1009122423)
 
 #### Simulate Data ####
-# Mean and SD values are from the National Health and Nutrition Examination Survey and Anthropometric Data for U.S. Adults
+# Mean and SD values are from the National Health and Nutrition Examination 
+# Survey and Anthropometric Data for U.S. Adults
+
 #variable, Mean(Approx.), Standard Deviation (Approx.)
 
 #Human Density (g/cm³)  1.05, 0.01

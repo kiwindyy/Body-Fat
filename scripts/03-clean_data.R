@@ -45,8 +45,10 @@ for (column_name in colnames(cleaned_data)) {
   }
 }
 
-# The original dataset includes weight in pounds, height and waist in inches, and body fat in g/m³. 
-# The remaining measurements are in centimeters. Normalize the units for the following columns:
+# The original dataset includes weight in pounds, height and waist in inches, 
+# and body fat in g/m³. The remaining measurements are in centimeters. 
+# Normalize the units for the following columns:
+
 #lbs to kg (Keep two decimal places)
 cleaned_data$Weight <- cleaned_data$Weight * 0.453592
 cleaned_data$Weight <- floor(cleaned_data$Weight * 100) / 100

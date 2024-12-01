@@ -12,8 +12,9 @@ library(testthat)
 library(arrow)
 library(dplyr)
 
-# Load the cleaned dataset
-cleaned_data <- read_parquet("data/02-analysis_data/bodyfat.parquet")
+# Load the cleaned dataset, the test starts in scripts folder, use relative 
+# path to find data folder.
+cleaned_data <- read_parquet(here::here("data/02-analysis_data/bodyfat.parquet"))
 
 #### Test cleaned data ####
 
@@ -40,4 +41,14 @@ test_that("no missing values in dataset", {
 # Test that there are no duplicate rows
 test_that("no duplicate rows in dataset", {
   expect_equal(nrow(cleaned_data), nrow(distinct(cleaned_data)))
+})
+
+# Test that all values are greater than zero
+test_that("All values are greater than zero", {
+  expect_true(all(cleaned_data > 0))
+})
+
+# Test that all age values are integer
+test_that("All age values are integer", {
+  expect_true(all.equal(cleaned_data$Age, as.integer(cleaned_data$Age)))
 })
