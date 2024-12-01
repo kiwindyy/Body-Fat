@@ -115,7 +115,7 @@ The original uncleaned dataset contained the variables below:
 - Density: The measure of body density, used as a key variable in estimating body fat percentage. It combines body weight and volume to provide insights into overall composition.
 - Age: The age of the individual in years, providing a measure of the person's stage of life, which can influence body composition.
 - Weight: The total body mass of the individual, reflecting the combined weight of bones, muscles, fat, and other tissues.
-- Height: The standing height of the individual, often used alongside weight to calculate proportions and indices like BMI.
+- Height: The standing height of the individual, often used alongside weight to calculate proportions and indices.
 - Neck: The circumference of the neck, offering a measurement of fat and muscle distribution in the upper body.
 - Chest: The circumference of the chest, reflecting the size and structure of the upper torso, including muscle and fat.
 - Abdomen: The circumference around the abdomen, a key indicator of central fat distribution and a significant predictor of body fat percentage.
@@ -557,7 +557,7 @@ A stratified random sampling method was used to ensure the study represents adul
 
 This methodology uses best practices in survey design by including a mix of question types (e.g., multiple-choice, numerical entries, and open-ended responses) and clear instructions to ensure accurate and consistent data collection. By aligning the survey with the study’s goals, the collected data will support the development of effective regression models for estimating body fat. The sampling strategy minimizes bias and enhances the ability to apply the findings broadly.
 
-Link to survey: https://forms.gle/353vGHrE5QcBRGuH7
+Link to survey: [https://forms.gle/353vGHrE5QcBRGuH7](https://forms.gle/353vGHrE5QcBRGuH7)
 
 \newpage
 

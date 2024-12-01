@@ -10,7 +10,7 @@ The repo is structured as:
 -   `data/raw_data` contains the raw data as obtained from The Data And Story Library (DASL).
 -   `data/analysis_data` contains the cleaned dataset that was constructed.
 -   `other/llm_usage` contains relevant details about LLM chat interactions.
--   `other/datasheet` contains the datasheet for Body Fat Percentage dataset.
+-   `other/datasheet` contains the datasheet & data dictionary for Body Fat dataset.
 -   `other/model` contains relevant code about finding the appropriate variables for the study.
 -   `other/sketches` contains images of the initial sketches for the Body Fat Percentage dataset.
 -   `paper` contains the files used to generate the paper, including the Quarto document, reference bibliography file, and the PDF version. 
