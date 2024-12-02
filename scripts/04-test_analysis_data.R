@@ -3,7 +3,7 @@
 # Author: Wendy Yuan
 # Date: 29 November 2024
 # Contact: w.yuan@mail.utoronto.ca
-# Pre-requisites: 
+# Pre-requisites:
 # - 02-clean_data.R must have been run
 
 #### Workspace setup ####
@@ -12,9 +12,8 @@ library(testthat)
 library(arrow)
 library(dplyr)
 
-# Load the cleaned dataset, the test starts in scripts folder, use relative 
-# path to find data folder.
-cleaned_data <- read_parquet(here::here("data/02-analysis_data/bodyfat.parquet"))
+cleaned_data <- read_parquet(here::here("data/02-analysis_data/bodyfat.parquet")
+)
 
 #### Test cleaned data ####
 

@@ -2,9 +2,9 @@
 # Purpose: Tests the structure and validity of the simulated body fat dataset
 # Author: Wendy Yuan
 # Date: 29 November 2024
-# Contact: w.yuan@mail.utoronto.ca 
-# Pre-requisites: 
-  # - 00-simulate_data.R must have been run
+# Contact: w.yuan@mail.utoronto.ca
+# Pre-requisites:
+# - 00-simulate_data.R must have been run
 
 #### Workspace setup ####
 library(tidyverse)
@@ -70,12 +70,13 @@ if (all(sim_data$Density >= 0.9 & sim_data$Density <= 1.1)) {
 }
 
 # Test if all values in body measurement columns are positive
-non_positive_cols <- names(sim_data)[sapply(sim_data, function(column) 
-  any(column <= 0))]
-if (length(non_positive_cols) == 0 ) {
+non_positive_cols <- names(sim_data)[sapply(sim_data, function(column) {
+  any(column <= 0)
+})]
+if (length(non_positive_cols) == 0) {
   message("Test Passed: All body measurements are positive.")
 } else {
-  stop(paste("Test Failed: Some values in '", paste(non_positive_cols, 
+  stop(paste("Test Failed: Some values in '", paste(non_positive_cols,
                                                     collapse = ", "),
              "' column(s) are not positive."))
 }

@@ -1,5 +1,5 @@
 ---
-title: "Data Dictionary for Body Fat Dataset"
+title: "Data Dictionary for Body Fat Raw Dataset"
 author: 
   - Wendy Yuan
 thanks: "Code and data are available at: https://github.com/kiwindyy/Body-Fat"
@@ -27,7 +27,7 @@ format: pdf
 
 - Type: Numeric
 - Description: Age of the individual in years.
-- Values/Range: 20–81
+- Values/Range: 22–81
 - Units: Years
 - Remarks: Reflects life stage, which influences body composition.
 
@@ -76,7 +76,7 @@ format: pdf
 - Type: Numeric
 - Description: Measurement around the waist.
 - Values/Range: 27.3–49.6
-- Units: Centimeters (cm)
+- Units: Inches (in)
 - Remarks: Assesses fat distribution, often paired with hip circumference.
 
 **Hip**
@@ -99,7 +99,7 @@ format: pdf
 
 - Type: Numeric
 - Description: Circumference of the knee.
-- Values/Range: 33.5–46.0
+- Values/Range: 33.0–46.0
 - Units: Centimeters (cm)
 - Remarks: Provides detail about lower-body structure and proportions.
 
@@ -107,7 +107,7 @@ format: pdf
 
 - Type: Numeric
 - Description: Circumference around the ankle.
-- Values/Range: 20.2–27.0
+- Values/Range: 19.1–33.9
 - Units: Centimeters (cm)
 - Remarks: Reflects skeletal and soft tissue composition in the lower leg.
 
@@ -115,7 +115,7 @@ format: pdf
 
 - Type: Numeric
 - Description: Circumference of the bicep (arm flexed).
-- Values/Range: 25.6–39.1
+- Values/Range: 24.8–39.1
 - Units: Centimeters (cm)
 - Remarks: Highlights upper-arm muscle and fat distribution.
 
@@ -123,7 +123,7 @@ format: pdf
 
 - Type: Numeric
 - Description: Circumference of the forearm.
-- Values/Range: 24.6–33.8
+- Values/Range: 21.0–34.9
 - Units: Centimeters (cm)
 - Remarks: Provides information about lower-arm composition.
 
