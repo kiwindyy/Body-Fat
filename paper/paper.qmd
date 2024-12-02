@@ -303,6 +303,8 @@ The residual plot, shown in [@fig-residual], helps assess both the linearity and
 # Fit the linear regression model
 model <- lm(Pct.BF ~ Age + Height + Abdomen + Wrist, data = data)
 
+par(cex = 0.8)
+
 # 1. Linearity: Residuals vs Fitted Plot
 plot(model$fitted.values, residuals(model), 
      main = "Residuals vs Fitted",
@@ -320,8 +322,12 @@ The Scale-Location plot, [@fig-variance], is used to assess the assumption of co
 #| warning: false
 #| message: false
 
+par(cex = 0.8)
+
 plot(model, which = 3)
 ```
+
+\newpage
 
 The Normal Q-Q plot, [@fig-normality] checks if the residuals (errors) in the model follow a normal distribution. If the errors are normal, the points should stay close to the red line. Here, most points are close to the line, meaning the errors are roughly normal. At the ends, some points are farther from the line, which might mean there are some extreme values or outliers. Overall, the errors seem mostly normal satisfying the linear regression assumption.
 
@@ -332,6 +338,8 @@ The Normal Q-Q plot, [@fig-normality] checks if the residuals (errors) in the mo
 #| warning: false
 #| message: false
 
+par(cex = 0.8)
+
 # 4. Normality: Q-Q Plot of Residuals
 qqnorm(residuals(model))
 qqline(residuals(model), col = "red")
@@ -340,6 +348,8 @@ qqline(residuals(model), col = "red")
 We expect larger body measurements to be linked to higher body fat percentages. Specifically, people with bigger abdominal or wrist circumferences are likely to have more body fat. Abdomen size often shows how much fat is stored in the center of the body, which contributes a lot to total body fat. Wrist circumference, while less variable, can reflect overall body size and fat distribution. In contrast, we expect taller individuals to have less body fat because taller people usually have leaner body compositions.
 
 We also expect older individuals to have slightly more body fat. As people age, changes in metabolism and lifestyle can lead to gradual increases in fat. By using these variables in a multi-linear regression model, we can measure how each one affects body fat percentage. For example, the model will estimate how much body fat percentage increases when abdomen size grows by one unit, while keeping the other variables unchanged. This helps us understand the role of each measurement in predicting body fat.
+
+\newpage
 
 # Results {#sec-results}
 
@@ -384,7 +394,7 @@ p4 <- ggplot(data, aes(x = Wrist, y = Pct.BF)) +
 grid.arrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 ```
 
-The regression results are summarized in [@tbl-multi1], showing the coefficients and pvalues & [@tbl-multi2], showing the $R^2$ and standard error. The intercept, which represents the estimated body fat percentage when all predictors are zero, is 2.01. However, this value doesn't have much real-world meaning because variables like height and abdomen size cannot actually be zero. Among the predictors, Abdomen circumference has the strongest positive effect on body fat percentage. For every 1 cm increase in abdomen size, body fat percentage increases by about 0.78%, while keeping other factors unchanged.
+The regression results are summarized in [@tbl-multi1], showing the coefficients and pvalues & [@tbl-multi2], showing the $R^2$ and standard error. For the code and full model see the script document in: scripts/06-model_data.R. The intercept, which represents the estimated body fat percentage when all predictors are zero, is 2.01. However, this value doesn't have much real-world meaning because variables like height and abdomen size cannot actually be zero. Among the predictors, Abdomen circumference has the strongest positive effect on body fat percentage. For every 1 cm increase in abdomen size, body fat percentage increases by about 0.78%, while keeping other factors unchanged.
 
 Wrist circumference shows a significant negative relationship with body fat percentage. This means that people with larger wrists tend to have lower body fat percentages. Height also has a small negative effect, indicating that taller individuals are likely to have slightly lower body fat. Age has a weak positive effect, meaning body fat percentage may slightly increase with age, but this result is less certain. The p-value of each variable tells us the likely the data would have occurred. Assuming the alpha significance level is $\alpha$ = 0.05 then height, abdomen & wrist would be good predictors for body fat percentage. However, since the p-value of age is 0.08 (greater than 0.05) then it is not necessarily a good predictor for body fat percentage.
 
@@ -431,8 +441,6 @@ model_stats <- data.frame(
 kable(model_stats)
 ```
 
-\newpage
-
 ## Model Validation 
 
 The plot, [@fig-coefficients] verifies the reliability of the multi-linear regression model by showing the estimated effects of each predictor and their 90% confidence intervals. It confirms that the model’s results are consistent and aligns with key assumptions of linear regression.
@@ -441,6 +449,8 @@ The plot, [@fig-coefficients] verifies the reliability of the multi-linear regre
 - Wrist: The negative coefficient and confidence interval that does not cross zero confirm that the model captures the relationship between Wrist size and lower body fat. While the interval for Wrist is slightly wider, it still supports the model’s reliability.
 - Height: The negative coefficient with a confidence interval just avoiding zero confirms the model captures a small but reliable relationship between Height and body fat percentage.
 - Age: The confidence interval for Age includes zero, confirming the model’s result that Age has a weaker and statistically insignificant effect on body fat percentage.
+
+\newpage
 
 ```{r}
 #| label: fig-coefficients
@@ -562,6 +572,8 @@ kable(head(part2, 10), booktabs = TRUE) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
+\newpage
+
 # All Variable Linear Regression Assumption {#sec-regassumption}
 
 The diagnostic plots confirm that the linear regression assumptions are met for all variables, supporting the model's reliability. The Residuals vs. Fitted plot, @fig-fullresidual, shows that the residuals are randomly scattered around the horizontal red line at zero, with no noticeable patterns or curvature. This suggests that the relationship between the predictors and the outcome is properly captured by the linear regression model, satisfying the linearity assumption. Additionally, the absence of clustering or systematic trends indicates that the residuals are not related to one another, meeting the independence assumption.
@@ -574,8 +586,10 @@ The diagnostic plots confirm that the linear regression assumptions are met for 
 #| message: false
 
 # Fit the linear regression model
-fullresidual <- lm(Pct.BF ~ Age + Weight + Height + Neck + Chest + Abdomen + Waist + 
-              Hip + Thigh + Knee + Ankle + Bicep + Forearm + Wrist, data = data)
+fullresidual <- lm(Pct.BF ~ Age + Weight + Height + Neck + Chest + Abdomen + 
+      Waist + Hip + Thigh + Knee + Ankle + Bicep + Forearm + Wrist, data = data)
+
+par(cex = 0.8)
 
 # Linearity: Residuals vs Fitted Plot
 plot(fullresidual$fitted.values, residuals(fullresidual), 
@@ -594,9 +608,10 @@ The Scale-Location plot, @fig-fullvariance, further supports the model by demons
 #| warning: false
 #| message: false
 
+par(cex = 0.8)
+
 plot(fullresidual, which = 3)
 ```
-
 
 Lastly, the Normal Q-Q plot, @fig-fullnormality, shows that the residuals closely follow the red diagonal line, meaning they are approximately normally distributed. While there are minor deviations at the ends, they are not significant enough to impact the model's validity. This satisfies the normality assumption, which is necessary for accurate hypothesis testing and confidence intervals in linear regression.
 
@@ -607,12 +622,16 @@ Lastly, the Normal Q-Q plot, @fig-fullnormality, shows that the residuals closel
 #| warning: false
 #| message: false
 
+par(cex = 0.8)
+
 # Normality: Q-Q Plot of Residuals
 qqnorm(residuals(fullresidual))
 qqline(residuals(fullresidual), col = "red")
 ```
 
 Since the assumptions are satisfied, we can confidently move forward with evaluating the model. 
+
+\newpage
 
 # AIC Backwards Selection Explained {#sec-aic}
 
@@ -637,29 +656,23 @@ This script performs backward selection to identify the four variables that best
 
 This process is outlined in reference document scripts/05-exploratory_data_analysis.R. The script automates the selection process, making it systematic and reproducible.
 
+\newpage
+
 # Surveys, sampling, and observational data {#sec-survey}
 
 ## Similar Methodologies From Literature 
 
-***Overview of Related Methods***
-
 The study by @potter, Circumference-Based Predictions of Body Fat Revisited, analyzed the use of abdominal circumference measurements to estimate body fat percentage. This method, used by the United States Marine Corps, was compared against dual-energy X-ray absorptiometry, a standard reference, and bioelectrical impedance analysis to evaluate its accuracy. The sample included 609 Marines, consisting of 430 men and 179 women, aged 18–57 years, and the study looked at differences in results by gender and age.
 
-***Strengths of the Study***
+***Strengths & Limitations of the Study***
 
 The study found that abdominal circumference is a practical predictor of body fat percentage in men, particularly when their body fat percentage is within the range expected for military fitness standards (18–26%) [@potter]. The method’s simplicity and low cost make it suitable for widespread use in military settings where assessments need to be performed efficiently. By including men and women from different age groups, the study provided a broad view of how the method performs across a variety of individuals who meet Marine Corps fitness standards. The study also addressed the relationship between age and body fat. Older individuals tended to have slightly more fat mass but similar fat-free mass compared to younger participants. This suggests the method is generally consistent across age groups in terms of patterns of underestimation or overestimation.
-
-***Limitations of the Study***
 
 However, the study also highlighted significant limitations [@potter]. The method underestimated body fat percentage in men by an average of 2.6 percent, while it overestimated body fat in women by 2.3 percent for younger participants and 1.3 percent for older participants. These differences were due to variations in fat distribution. Women often store fat in areas not measured by abdominal circumference, such as the hips and thighs, leading to overestimations. For men, especially those with lower body fat, the method struggled to account for intra-abdominal fat, resulting in underestimations. The study also tested bioelectrical impedance analysis, which was more accurate overall but still affected by errors in individuals with extreme body fat percentages and by hydration variability. Both methods were found to lack the precision needed for detailed body composition assessments.
 
 ***Comparison to This Paper***
 
-This paper builds on @potter work by addressing some of the identified shortcomings. For example, while @potter focused solely on abdominal circumference, this study incorporates additional variables, such as wrist size and height, into a statistical model. These extra measurements aim to make predictions more accurate, especially for individuals at the lower or higher ends of the body fat range.
-
-Additionally, @potter highlighted that body fat is distributed differently between genders. This study focuses only on middle-aged men. By concentrating on this group, the research aims to provide a method that better captures the specific fat distribution patterns and characteristics of this demographic.
-
-***Implications for Practical Applications***
+This paper builds on @potter work by addressing some of the identified shortcomings. For example, while @potter focused solely on abdominal circumference, this study incorporates additional variables, such as wrist size and height, into a statistical model. These extra measurements aim to make predictions more accurate, especially for individuals at the lower or higher ends of the body fat range. Additionally, @potter highlighted that body fat is distributed differently between genders. This study focuses only on middle-aged men. By concentrating on this group, the research aims to provide a method that better captures the specific fat distribution patterns and characteristics of this demographic.
 
 @potter findings show that while the abdominal circumference method is useful for broad categorization and operational use, it is less effective for individual assessments where greater precision is required. This study builds on that foundation by proposing a refined model that combines multiple variables to improve accuracy. This approach can be applied in both military and civilian settings where body fat estimation needs to be quick, low-cost, and reliable.
 
