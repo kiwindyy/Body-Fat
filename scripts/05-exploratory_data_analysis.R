@@ -44,5 +44,12 @@ while (length(final_variables) > 4) {
   final_variables <- setdiff(final_variables, names(which.min(aic_values)))
 }
 
+# Final 4-variable model
+final_model <- lm(as.formula(paste("Pct.BF ~", paste(final_variables,
+                                                     collapse = "+"))),
+                  data = data)
+
+summary(final_model)
+
 # Print the AIC value and final variables
 kable(final_variables)

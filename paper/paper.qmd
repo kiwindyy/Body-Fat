@@ -1,5 +1,5 @@
 ---
-title: "Estimating Body Fat Percentage"
+title: "Estimating Body Fat Percentage Using Anthropometric Measurements"
 subtitle: "Abdomen as the Strongest Predictor With Contributions From Wrist, Height, and Age For Affordable Health Monitoring"
 author: 
   - Wendy Yuan
@@ -113,7 +113,7 @@ kable(head(part3, 8), booktabs = TRUE) %>%
 
 The dependent variable in this study is percent body fat, which represents the proportion of an individual's total body mass that is composed of fat. This variable is a continuous measure and serves as the target outcome we aim to estimate using predictor variables. Percent body fat is an important indicator of health, as both excessive and extremely low levels can lead to various medical issues. In our analysis, understanding the distribution of this variable is essential for ensuring that it aligns with the assumptions required for linear regression modeling.
 
-Body fat percent is measured in percentage (%). Using the method from ... body fat percentage is calculated using the relationship between body density ($D$) and the densities of lean and fat tissue. The formula for the proportion of fat tissue ($B$) is: 
+Body fat percent is measured in percentage (%). The method and numbers (for the example) are from @katch. Body fat percentage is calculated using the relationship between body density ($D$) and the densities of lean and fat tissue. The formula for the proportion of fat tissue ($B$) is: 
 
 $$B = \frac{1}{D} \cdot \frac{ab}{a - b} - \frac{b}{a - b}$$
 
@@ -148,19 +148,19 @@ hist(data$Pct.BF,
 The original uncleaned dataset contained the variables below: 
 
 - Density: The measure of body density, used as a key variable in estimating body fat percentage. It combines body weight and volume to provide insights into overall composition. It is measured in grams per $cm^3$ with values ranging from 0.99 to 1.1.
-- Age: The age of the individual in years, providing a measure of the person's stage of life, which can influence body composition. It is measured in years with values ranging from 20 to 81.
+- Age: The age of the individual in years, providing a measure of the person's stage of life, which can influence body composition. It is measured in years with values ranging from 22 to 81.
 - Weight: The total body mass of the individual, reflecting the combined weight of bones, muscles, fat, and other tissues. It is measured in pounds (lbs) with values ranging from 118.5-262.75.
 - Height: The standing height of the individual, often used alongside weight to calculate proportions and indices. It is measured in inches (in) with values ranging from 64–77.75.
 - Neck: The circumference of the neck, offering a measurement of fat and muscle distribution in the upper body. It is measured in centimeters (cm) with values ranging from 31.1-43.9.
 - Chest: The circumference of the chest, reflecting the size and structure of the upper torso, including muscle and fat. It is measured in centimeters (cm) with values ranging from 79.3-128.3.
 - Abdomen: The circumference around the abdomen, a key indicator of central fat distribution and a significant predictor of body fat percentage. It is measured in centimeters (cm) with values ranging from 69.4-126.2.
-- Waist: The measurement around the waist, often used with hip circumference to assess body shape and fat distribution. It is measured in centimeters (cm) with values ranging from 27.3-49.6.
+- Waist: The measurement around the waist, often used with hip circumference to assess body shape and fat distribution. It is measured in inches (in) with values ranging from 27.3-49.6.
 - Hip: The circumference of the hips, providing a measure of lower-body proportions and often paired with waist circumference to calculate ratios. It is measured in centimeters (cm) with values ranging from 85.0-125.6. 
 - Thigh: The circumference of the thigh, measured to understand muscle and fat distribution in the upper leg. It is measured in centimeters (cm) with values ranging from 47.2-74.4.
-- Knee: The circumference of the knee, offering additional detail about lower-body structure and proportions. It is measured in centimeters (cm) with values ranging from 33.5-46.0.
-- Ankle: The measurement around the ankle, reflecting skeletal and soft tissue composition in the lower leg. It is measured in centimeters (cm) with values ranging from 20.2-27.0.
+- Knee: The circumference of the knee, offering additional detail about lower-body structure and proportions. It is measured in centimeters (cm) with values ranging from 33.0-46.0.
+- Ankle: The measurement around the ankle, reflecting skeletal and soft tissue composition in the lower leg. It is measured in centimeters (cm) with values ranging from 19.1–33.9.
 - Bicep: The circumference of the bicep, measured with the arm flexed, highlighting upper-arm muscle and fat distribution. It is measured in centimeters (cm) with values ranging from 25.6-39.1.
-- Forearm: The circumference of the forearm, providing information about the composition of the lower arm. It is measured in centimeters (cm) with values ranging from 24.6-33.8.
+- Forearm: The circumference of the forearm, providing information about the composition of the lower arm. It is measured in centimeters (cm) with values ranging from 21.0–34.9.
 - Wrist: The circumference of the wrist, a useful proxy for skeletal size and overall body frame. It is measured in centimeters (cm) with values ranging from 15.8-21.4.
 
 This study focuses on only four variables. To find the most important ones, backward selection was used to identify the four variables that provided the best model fit, measured by the lowest Akaike Information Criterion (AIC). For this method to work, all variables needed to meet the linear regression assumptions. As discussed in @sec-regassumption, the analysis showed that all 15 variables meet these assumptions when tested against body fat percentage (Pct.BF). With these conditions met, the study proceeds using AIC to keep the model simple while still explaining the data well.
@@ -345,11 +345,13 @@ qqnorm(residuals(model))
 qqline(residuals(model), col = "red")
 ```
 
+The multi-linear regression model was chosen for its simplicity, ease of understanding, and ability to show important relationships between measurements while meeting the basic requirements of linear regression, such as consistency and fairness in the results. Unlike more complicated methods, such as machine learning or non-linear models, multi-linear regression makes it easier to interpret how each factor affects body fat estimation, making it more useful for practical applications and understandable for non-experts. This model connects the findings with existing knowledge by confirming known patterns, such as the strong connection between abdominal size and body fat, which aligns with the idea that fat around the abdomen is a main indicator of overall fat levels. Including wrist size and height emphasizes differences in body structure and proportions, adding more detail to how body fat is distributed. By combining known ideas with real-world testing, this model provides a practical, clear, and easy way to estimate body fat, especially for everyday use, while building on current understanding.
+
+\newpage
+
 We expect larger body measurements to be linked to higher body fat percentages. Specifically, people with bigger abdominal or wrist circumferences are likely to have more body fat. Abdomen size often shows how much fat is stored in the center of the body, which contributes a lot to total body fat. Wrist circumference, while less variable, can reflect overall body size and fat distribution. In contrast, we expect taller individuals to have less body fat because taller people usually have leaner body compositions.
 
 We also expect older individuals to have slightly more body fat. As people age, changes in metabolism and lifestyle can lead to gradual increases in fat. By using these variables in a multi-linear regression model, we can measure how each one affects body fat percentage. For example, the model will estimate how much body fat percentage increases when abdomen size grows by one unit, while keeping the other variables unchanged. This helps us understand the role of each measurement in predicting body fat.
-
-\newpage
 
 # Results {#sec-results}
 
@@ -450,8 +452,6 @@ The plot, [@fig-coefficients] verifies the reliability of the multi-linear regre
 - Height: The negative coefficient with a confidence interval just avoiding zero confirms the model captures a small but reliable relationship between Height and body fat percentage.
 - Age: The confidence interval for Age includes zero, confirming the model’s result that Age has a weaker and statistically insignificant effect on body fat percentage.
 
-\newpage
-
 ```{r}
 #| label: fig-coefficients
 #| fig-cap: Model Coefficients Confidence Intervals
@@ -513,7 +513,7 @@ The model demonstrates strong predictive ability, with an $R^2$ value of 0.7033 
 
 # Weaknesses and Next Steps 
 
-This paper creates a multi-linear regression model to estimate body fat percentage using four predictors: Age, Height, Abdomen, and Wrist circumference. The dataset includes male participants, and the study ensures the model follows linear regression assumptions. The results show how each predictor contributes to body fat percentage, with Abdomen being the most important factor.
+This paper creates a multi-linear regression model to estimate body fat percentage using four predictors: Age, Height, Abdomen, and Wrist circumference. The dataset includes male participants, and the study ensures the model follows linear regression assumptions. The results show how each predictor contributes to body fat percentage, with Abdomen being the most important factor. 
 
 One finding is that abdominal size is a strong predictor of body fat percentage. This supports the idea that fat stored in the abdominal area plays a main role in overall body fat levels. Abdomen circumference serves as a useful and accessible measure for monitoring body fat, making it helpful for health-related purposes.
 
@@ -529,11 +529,9 @@ The residual analysis also showed minor issues. While the model works well overa
 
 ### Future Steps
 
-Future research should focus on expanding the dataset to include more diverse groups. Adding data for women and people from different backgrounds would make the model more useful for a wider population. Including people of all ages, especially teenagers and seniors, would help the model predict body fat for everyone, not just middle-aged adults. A more balanced dataset would also make it easier to detect patterns that apply to specific groups.
+Future research should focus on expanding the dataset to include more diverse groups. Adding data for women and people from different backgrounds would make the model more useful for a wider population. Including people of all ages, especially teenagers and seniors, would help the model predict body fat for everyone, not just middle-aged adults. A more balanced dataset would also make it easier to detect patterns that apply to specific groups. Researchers should also consider adding more predictors to the model. Including variables like weight, hip size, and thigh size could give a fuller picture of body fat distribution and improve the model’s accuracy. Looking at how important each variable is could help decide which ones to add while keeping the model manageable.
 
-Researchers should also consider adding more predictors to the model. Including variables like weight, hip size, and thigh size could give a fuller picture of body fat distribution and improve the model’s accuracy. Looking at how important each variable is could help decide which ones to add while keeping the model manageable.
-
-Finally, using different methods to model the data could address some of the limitations. For example, machine learning techniques or non-linear models could find patterns that linear regression might miss, especially for outliers. Future studies could also use data collected over time to see how body fat changes as people age and whether the same predictors still apply. This would help create a better understanding of body fat and how it changes throughout life.
+Finally, using different methods to model the data could address some of the limitations. For example, machine learning techniques or non-linear models could find patterns that linear regression might miss, especially for outliers. Future studies could also use data collected over time to see how body fat changes as people age and whether the same predictors still apply. This would help create a better understanding of body fat and how it changes.
 
 \newpage
 

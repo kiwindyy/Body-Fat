@@ -20,4 +20,4 @@ final_model <- lm(as.formula(paste("Pct.BF ~", paste(final_variables,
 summary(final_model)
 
 #### Save model ####
-saveRDS(final_model, file = "other/model/final_model.rds")
+saveRDS(final_model, file = "model/final_model.rds")
