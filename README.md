@@ -1,4 +1,4 @@
-# Estimating Body Fat Using Circumference Measurements
+# Estimating Body Fat Percentage Using Anthropometric Measurements
 
 ## Overview
 

@@ -1,5 +1,5 @@
 ---
-title: "Datasheet for Body Fat Dataset"
+title: "Datasheet for Body Fat Percentage Dataset"
 subtitle: "Predictive Modeling of Body Fat Percentage Using Body Measurements"
 author: 
   - Wendy Yuan
