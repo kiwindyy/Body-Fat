@@ -33,7 +33,7 @@ remove_outliers <- function(data, column) {
   lower_bound <- max(q1 - 1.5 * iqr, epsilon)
   message(paste(column, ":", lower_bound))
   upper_bound <- q3 + 1.5 * iqr
-  
+
   data %>% filter(data[[column]] >= lower_bound & data[[column]] <= upper_bound)
 }
 

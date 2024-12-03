@@ -30,7 +30,7 @@ while (length(final_variables) > 4) {
                                                          collapse = "+"))),
                       data = data)
   current_aic <- AIC(current_model)
-  
+
   # Drop one variable at a time and calculate AIC
   aic_values <- sapply(final_variables, function(var) {
     temp_model <- lm(as.formula(paste("Pct.BF ~", paste(setdiff(final_variables,
@@ -39,7 +39,7 @@ while (length(final_variables) > 4) {
                      data = data)
     return(AIC(temp_model))
   })
-  
+
   # Remove the variable leading to the lowest AIC improvement
   final_variables <- setdiff(final_variables, names(which.min(aic_values)))
 }

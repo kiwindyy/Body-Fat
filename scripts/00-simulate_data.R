@@ -56,7 +56,7 @@ repeat {
     Forearm = rnorm(n, mean = 27, sd = 3),
     Wrist = rnorm(n, mean = 18, sd = 2)
   )
-  
+
   if (all(simulated_data > 0)) {
     break
   }
