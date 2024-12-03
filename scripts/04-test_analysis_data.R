@@ -4,7 +4,7 @@
 # Date: 29 November 2024
 # Contact: w.yuan@mail.utoronto.ca
 # Pre-requisites:
-# - 02-clean_data.R must have been run
+# - 03-clean_data.R must have been run
 
 #### Workspace setup ####
 library(tidyverse)
